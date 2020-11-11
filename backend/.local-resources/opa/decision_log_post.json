@@ -1,0 +1,61 @@
+[
+  {
+    "path": "example/authz/allowed",
+    "input": {
+      "tags": {},
+      "user": {
+        "name": "Sample User",
+        "email": "sample-user@example.com",
+        "given_name": "Sample",
+        "family_name": "User",
+        "email_verified": true,
+        "preferred_username": "user"
+      },
+      "request": {
+        "host": "localhost:8080",
+        "path": "/",
+        "method": "GET",
+        "scheme": "http",
+        "headers": {
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+          "cookie": "grafana_session=98b4bcdfc403a09019a35160481ee731; PGADMIN_LANGUAGE=en; pga4_session=59672f8f-6693-4e63-84a2-934ed48d441e!3ehSl21u0d5iMvtOnpTvrzOCk5M=; oidc=eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUVRoNXhfWk94cWdiU0l4Z1JyU0luRkh4TEhwdzhIYkVpajJpaGwyRFFZIn0.eyJleHAiOjE1OTQ0ODAzNDIsImlhdCI6MTU5NDQ3Njc0MiwiYXV0aF90aW1lIjoxNTk0NDc2NzQyLCJqdGkiOiI0YmQxYWUzOC0yZmFhLTQ3YjYtYmFmOS0wMzM2MDAxYjgyYzEiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODgvYXV0aC9yZWFsbXMvaW50ZWdyYXRpb24iLCJhdWQiOiJjbGllbnQtd2l0aG91dC1zZWNyZXQiLCJzdWIiOiJjY2E0NjNlYy1jNzgwLTRiN2ItOTY2ZS04NDg4M2I4NWQxMWYiLCJ0eXAiOiJJRCIsImF6cCI6ImNsaWVudC13aXRob3V0LXNlY3JldCIsInNlc3Npb25fc3RhdGUiOiI4MDk4MDJlNC1jNDFkLTRlMTktYTEyNC02MGEwMGNiNGM3YWUiLCJhY3IiOiIxIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJTYW1wbGUgVXNlciIsImdyb3VwcyI6WyJncm91cDEiXSwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlciIsImdpdmVuX25hbWUiOiJTYW1wbGUiLCJmYW1pbHlfbmFtZSI6IlVzZXIiLCJlbWFpbCI6InNhbXBsZS11c2VyQGV4YW1wbGUuY29tIn0.PAPNS-5KDaW6WRTmlyFVu60NLx027hZY2is4K_SAORKyHYtKxYQgGMvI39E5YxEBptR8UXvRl1BHlrl6pjG_F6You1gAtgFAjMo3EJLoPpIzIRE5e537DehMZocHsx_JLRcUzyIXALxzNDlY7vDQP4jY-tFWrgPNj7mcGsb8DOgBfH7RJKfQ3Ra5WEI3CaH6ajbD5f_Je9AXTXQQphYrLlSbGN8J1erBQx9C5986zVNK_7nN-0x8XGdLPZrIq9-kfRqEDUszf-yWqitRuJxAgLUgWCgtZCLyUb9cyxy9BIcJoKj5HVx1gujAC03mylC3a7Z432aACnLInBkD9Lc1UA",
+          "pragma": "no-cache",
+          "referer": "http://localhost:8088/auth/realms/integration/protocol/openid-connect/auth?client_id=client-without-secret&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Foidc%2Fcallback&response_type=code&scope=openid+email+profile&state=my-secret-state-key",
+          "connection": "keep-alive",
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36",
+          "cache-control": "no-cache",
+          "sec-fetch-dest": "document",
+          "sec-fetch-mode": "navigate",
+          "sec-fetch-site": "same-site",
+          "sec-fetch-user": "?1",
+          "accept-encoding": "gzip, deflate, br",
+          "accept-language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
+          "upgrade-insecure-requests": "1"
+        },
+        "protocol": "HTTP/1.1",
+        "remoteAddr": "[::1]:33602",
+        "parsed_path": null
+      }
+    },
+    "labels": {
+      "id": "ab1c909d-1fb9-4a0e-b506-27bdad98b4fd",
+      "app": "myapp",
+      "region": "west",
+      "version": "0.20.4",
+      "environment": "production"
+    },
+    "result": true,
+    "bundles": {
+      "/bundle.tar.gz": {}
+    },
+    "metrics": {
+      "timer_server_handler_ns": 285848,
+      "timer_rego_query_eval_ns": 91296,
+      "timer_rego_input_parse_ns": 149321,
+      "counter_server_query_cache_hit": 1
+    },
+    "timestamp": "2020-07-11T14:13:16.114106188Z",
+    "decision_id": "5b061735-7f49-4fde-bb5f-f760617ebd9d",
+    "requested_by": "[::1]:57340"
+  }
+]

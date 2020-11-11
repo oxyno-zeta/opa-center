@@ -1,0 +1,38 @@
+type DecisionLog {
+  id: String!
+  createdAt: String!
+  updatedAt: String!
+  decisionId: String!
+  path: String!
+  requestedBy: String!
+  timestamp: String!
+  originalMessage: String!
+  partition: Partition!
+}
+
+type DecisionLogConnection {
+  edges: [DecisionLogEdge]
+  pageInfo: PageInfo!
+}
+
+type DecisionLogEdge {
+  cursor: String!
+  node: DecisionLog
+}
+
+input DecisionLogSortOrder {
+  createdAt: SortOrderEnum
+  updatedAt: SortOrderEnum
+  path: SortOrderEnum
+  requestedBy: SortOrderEnum
+  timestamp: SortOrderEnum
+}
+
+input DecisionLogFilter {
+  createdAt: DateFilter
+  updatedAt: DateFilter
+  decisionId: StringFilter
+  path: StringFilter
+  requestedBy: StringFilter
+  timestamp: DateFilter
+}

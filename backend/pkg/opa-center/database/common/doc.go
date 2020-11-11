@@ -1,0 +1,3 @@
+package common
+
+// This package will contains common functions for filters, sorts, ...

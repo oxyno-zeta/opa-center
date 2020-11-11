@@ -1,0 +1,197 @@
+"""
+Pagination information
+"""
+type PageInfo {
+  """
+  Has a next page ?
+  """
+  hasNextPage: Boolean!
+  """
+  Has a previous page ?
+  """
+  hasPreviousPage: Boolean!
+  """
+  Shortcut to first edge cursor in the result chunk
+  """
+  startCursor: String
+  """
+  Shortcut to last edge cursor in the result chunk
+  """
+  endCursor: String
+}
+
+"""
+Sort for enumeration
+"""
+enum SortOrderEnum {
+  ASC
+  DESC
+}
+
+"""
+String filter structure
+"""
+input StringFilter {
+  """
+  Allow to test equality to
+  """
+  eq: String
+  """
+  Allow to test non equality to
+  """
+  notEq: String
+  """
+  Allow to test if a string contains another string.
+  """
+  contains: String
+  """
+  Allow to test if a string isn't containing another string.
+  """
+  notContains: String
+  """
+  Allow to test if a string starts with another string.
+  """
+  startsWith: String
+  """
+  Allow to test if a string isn't starting with another string.
+  """
+  notStartsWith: String
+  """
+  Allow to test if a string ends with another string.
+  """
+  endsWith: String
+  """
+  Allow to test if a string isn't ending with another string.
+  """
+  notEndsWith: String
+  """
+  Allow to test if value is in array
+  """
+  in: [String]
+  """
+  Allow to test if value isn't in array
+  """
+  notIn: [String]
+}
+
+"""
+Integer filter structure
+"""
+input IntFilter {
+  """
+  Allow to test equality to
+  """
+  eq: Int
+  """
+  Allow to test non equality to
+  """
+  notEq: Int
+  """
+  Allow to test greater or equal than
+  """
+  gte: Int
+  """
+  Allow to test not greater or equal than
+  """
+  notGte: Int
+  """
+  Allow to test greater than
+  """
+  gt: Int
+  """
+  Allow to test not greater than
+  """
+  notGt: Int
+  """
+  Allow to test less or equal than
+  """
+  lte: Int
+  """
+  Allow to test not less or equal than
+  """
+  notLte: Int
+  """
+  Allow to test less than
+  """
+  lt: Int
+  """
+  Allow to test not less than
+  """
+  notLt: Int
+  """
+  Allow to test if value is in array
+  """
+  in: [Int]
+  """
+  Allow to test if value isn't in array
+  """
+  notIn: [Int]
+}
+
+"""
+Boolean filter structure
+"""
+input BooleanFilter {
+  """
+  Allow to test equality to
+  """
+  eq: Boolean
+  """
+  Allow to test non equality to
+  """
+  notEq: Boolean
+}
+
+"""
+Date filter structure
+"""
+input DateFilter {
+  """
+  Allow to test equality to
+  """
+  eq: String
+  """
+  Allow to test non equality to
+  """
+  notEq: String
+  """
+  Allow to test greater or equal than
+  """
+  gte: String
+  """
+  Allow to test not greater or equal than
+  """
+  notGte: String
+  """
+  Allow to test greater than
+  """
+  gt: String
+  """
+  Allow to test not greater than
+  """
+  notGt: String
+  """
+  Allow to test less or equal than
+  """
+  lte: String
+  """
+  Allow to test not less or equal than
+  """
+  notLte: String
+  """
+  Allow to test less than
+  """
+  lt: String
+  """
+  Allow to test not less than
+  """
+  notLt: String
+  """
+  Allow to test if value is in array
+  """
+  in: [String]
+  """
+  Allow to test if value isn't in array
+  """
+  notIn: [String]
+}

@@ -1,0 +1,20 @@
+services:
+  acmecorp:
+    url: http://localhost:8081/api/
+
+labels:
+  app: myapp
+  region: west
+  environment: production
+
+decision_logs:
+  service: acmecorp
+  partition_name: fa608323-ba15-4f4f-b6d7-e544ad8f615a
+  reporting:
+    min_delay_seconds: 30
+    max_delay_seconds: 60
+
+# status:
+#   service: acmecorp
+
+default_decision: /http/example/authz/allow

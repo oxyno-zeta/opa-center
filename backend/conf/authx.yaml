@@ -1,0 +1,9 @@
+oidcAuthentication:
+  clientID: client-without-secret
+  state: my-secret-state-key
+  issuerUrl: http://localhost:8088/auth/realms/integration
+  redirectUrl: http://localhost:8080/ # /auth/oidc/callback will be added
+  emailVerified: true
+
+opaServerAuthorization:
+  url: http://localhost:8181/v1/data/example/authz/allowed

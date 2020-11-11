@@ -1,0 +1,101 @@
+# Where are all the schema files located? globs are supported eg  src/**/*.graphqls
+schema:
+  - graphql/*.graphql
+
+# Where should the generated server code go?
+exec:
+  filename: pkg/opa-center/server/graphql/generated/generated.go
+  package: generated
+
+# Uncomment to enable federation
+# federation:
+#   filename: pkg/opa-center/server/graphql/generated/federation.go
+#   package: generated
+
+# Where should any generated models go?
+model:
+  filename: pkg/opa-center/server/graphql/model/models_gen.go
+  package: model
+
+# Where should the resolver implementations go?
+resolver:
+  layout: follow-schema
+  dir: pkg/opa-center/server/graphql/
+  package: graphql
+
+# Optional: turn on use `gqlgen:"fieldName"` tags in your models
+# struct_tag: json
+
+# Optional: turn on to use []Thing instead of []*Thing
+# omit_slice_element_pointers: false
+
+# Optional: set to speed up generation time by not performing a final validation pass.
+# skip_validation: true
+
+# gqlgen will search for any type names in the schema in these go packages
+# if they match it will use them, otherwise it will generate them.
+autobind:
+  - "github.com/oxyno-zeta/opa-center/pkg/opa-center/server/graphql/model"
+
+# This section declares type mapping between the GraphQL and go type systems
+#
+# The first line in each type will be used as defaults for resolver arguments and
+# modelgen, the others will be allowed when binding to fields. Configure them to
+# your liking
+models:
+  PageInfo:
+    model:
+      - ./pkg/opa-center/server/graphql/utils.PageInfo
+  IntFilter:
+    model:
+      - ./pkg/opa-center/database/common.GenericFilter
+  BooleanFilter:
+    model:
+      - ./pkg/opa-center/database/common.GenericFilter
+  DateFilter:
+    model:
+      - ./pkg/opa-center/database/common.DateFilter
+  StringFilter:
+    model:
+      - ./pkg/opa-center/database/common.GenericFilter
+  SortOrderEnum:
+    model:
+      - ./pkg/opa-center/database/common.SortOrderEnum
+  DecisionLog:
+    model:
+      - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/decisionlogs/models.DecisionLog"
+    fields:
+      id:
+        resolver: true
+  DecisionLogSortOrder:
+    model:
+      - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/decisionlogs/models.SortOrder"
+  DecisionLogFilter:
+    model:
+      - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/decisionlogs/models.Filter"
+  Partition:
+    model:
+      - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models.Partition"
+    fields:
+      id:
+        resolver: true
+  PartitionSortOrder:
+    model:
+      - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models.SortOrder"
+  PartitionFilter:
+    model:
+      - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models.Filter"
+  CreatePartitionInput:
+    model:
+      - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models.CreateInput"
+  ID:
+    model:
+      - github.com/99designs/gqlgen/graphql.ID
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32
+  Int:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/99designs/gqlgen/graphql.Int64
+      - github.com/99designs/gqlgen/graphql.Int32

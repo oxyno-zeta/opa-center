@@ -1,0 +1,36 @@
+type Partition {
+  id: String!
+  createdAt: String!
+  updatedAt: String!
+  name: String!
+}
+
+type PartitionConnection {
+  edges: [PartitionEdge]
+  pageInfo: PageInfo!
+}
+
+type PartitionEdge {
+  cursor: String!
+  node: Partition
+}
+
+input CreatePartitionInput {
+  name: String!
+}
+
+type CreatePartitionPayload {
+  partition: Partition
+}
+
+input PartitionSortOrder {
+  createdAt: SortOrderEnum
+  updatedAt: SortOrderEnum
+  name: SortOrderEnum
+}
+
+input PartitionFilter {
+  createdAt: DateFilter
+  updatedAt: DateFilter
+  name: StringFilter
+}
