@@ -5,6 +5,7 @@ package model
 import (
 	models1 "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/decisionlogs/models"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models"
+	models2 "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/statuses/models"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/server/graphql/utils"
 )
 
@@ -30,4 +31,14 @@ type PartitionConnection struct {
 type PartitionEdge struct {
 	Cursor string            `json:"cursor"`
 	Node   *models.Partition `json:"node"`
+}
+
+type StatusConnection struct {
+	Edges    []*StatusEdge   `json:"edges"`
+	PageInfo *utils.PageInfo `json:"pageInfo"`
+}
+
+type StatusEdge struct {
+	Cursor string          `json:"cursor"`
+	Node   *models2.Status `json:"node"`
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	models1 "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/decisionlogs/models"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models"
+	models2 "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/statuses/models"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/database/common"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/server/graphql/model"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/server/graphql/utils"
@@ -43,6 +44,7 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Partition() PartitionResolver
 	Query() QueryResolver
+	Status() StatusResolver
 }
 
 type DirectiveRoot struct {
@@ -109,6 +111,26 @@ type ComplexityRoot struct {
 		OpaConfiguration func(childComplexity int, partitionID string) int
 		Partition        func(childComplexity int, id string) int
 		Partitions       func(childComplexity int, after *string, before *string, first *int, last *int, sort *models.SortOrder, filter *models.Filter) int
+		Status           func(childComplexity int, id string) int
+		Statuses         func(childComplexity int, partitionID string, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) int
+	}
+
+	Status struct {
+		CreatedAt       func(childComplexity int) int
+		ID              func(childComplexity int) int
+		OriginalMessage func(childComplexity int) int
+		Partition       func(childComplexity int) int
+		UpdatedAt       func(childComplexity int) int
+	}
+
+	StatusConnection struct {
+		Edges    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	StatusEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 }
 
@@ -135,6 +157,15 @@ type QueryResolver interface {
 	OpaConfiguration(ctx context.Context, partitionID string) (string, error)
 	DecisionLogs(ctx context.Context, partitionID string, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) (*model.DecisionLogConnection, error)
 	DecisionLog(ctx context.Context, id *string, decisionLogID *string) (*models1.DecisionLog, error)
+	Statuses(ctx context.Context, partitionID string, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) (*model.StatusConnection, error)
+	Status(ctx context.Context, id string) (*models2.Status, error)
+}
+type StatusResolver interface {
+	ID(ctx context.Context, obj *models2.Status) (string, error)
+	CreatedAt(ctx context.Context, obj *models2.Status) (string, error)
+	UpdatedAt(ctx context.Context, obj *models2.Status) (string, error)
+
+	Partition(ctx context.Context, obj *models2.Status) (*models.Partition, error)
 }
 
 type executableSchema struct {
@@ -406,6 +437,93 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Partitions(childComplexity, args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models.SortOrder), args["filter"].(*models.Filter)), true
 
+	case "Query.status":
+		if e.complexity.Query.Status == nil {
+			break
+		}
+
+		args, err := ec.field_Query_status_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Status(childComplexity, args["id"].(string)), true
+
+	case "Query.statuses":
+		if e.complexity.Query.Statuses == nil {
+			break
+		}
+
+		args, err := ec.field_Query_statuses_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Statuses(childComplexity, args["partitionId"].(string), args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models2.SortOrder), args["filter"].(*models2.Filter)), true
+
+	case "Status.createdAt":
+		if e.complexity.Status.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Status.CreatedAt(childComplexity), true
+
+	case "Status.id":
+		if e.complexity.Status.ID == nil {
+			break
+		}
+
+		return e.complexity.Status.ID(childComplexity), true
+
+	case "Status.originalMessage":
+		if e.complexity.Status.OriginalMessage == nil {
+			break
+		}
+
+		return e.complexity.Status.OriginalMessage(childComplexity), true
+
+	case "Status.partition":
+		if e.complexity.Status.Partition == nil {
+			break
+		}
+
+		return e.complexity.Status.Partition(childComplexity), true
+
+	case "Status.updatedAt":
+		if e.complexity.Status.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Status.UpdatedAt(childComplexity), true
+
+	case "StatusConnection.edges":
+		if e.complexity.StatusConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.StatusConnection.Edges(childComplexity), true
+
+	case "StatusConnection.pageInfo":
+		if e.complexity.StatusConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.StatusConnection.PageInfo(childComplexity), true
+
+	case "StatusEdge.cursor":
+		if e.complexity.StatusEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.StatusEdge.Cursor(childComplexity), true
+
+	case "StatusEdge.node":
+		if e.complexity.StatusEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.StatusEdge.Node(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -642,11 +760,86 @@ type Query {
   Get decision log
   """
   decisionLog(id: String, decisionLogId: String): DecisionLog
+
+  """
+  Get statuses
+  """
+  statuses(
+    """
+    Partition Id in which statuses must be searched
+    """
+    partitionId: String!
+    """
+    Cursor delimiter after you want data (used with first only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    after: String
+    """
+    Cursor delimiter before you want data (used with after only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    before: String
+    """
+    First elements
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    first: Int
+    """
+    Last elements (used only with before)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    last: Int
+    """
+    Sort
+    """
+    sort: StatusSortOrder
+    """
+    Filter
+    """
+    filter: StatusFilter
+  ): StatusConnection
+
+  """
+  Get status
+  """
+  status(id: String!): Status
 }
 
 # Mutation
 type Mutation {
   createPartition(input: CreatePartitionInput!): CreatePartitionPayload
+}
+`, BuiltIn: false},
+	{Name: "graphql/status.graphql", Input: `type Status {
+  id: String!
+  createdAt: String!
+  updatedAt: String!
+  originalMessage: String!
+  partition: Partition!
+}
+
+type StatusConnection {
+  edges: [StatusEdge]
+  pageInfo: PageInfo!
+}
+
+type StatusEdge {
+  cursor: String!
+  node: Status
+}
+
+input StatusSortOrder {
+  createdAt: SortOrderEnum
+  updatedAt: SortOrderEnum
+}
+
+input StatusFilter {
+  createdAt: DateFilter
+  updatedAt: DateFilter
 }
 `, BuiltIn: false},
 	{Name: "graphql/utils.graphql", Input: `"""
@@ -1064,6 +1257,90 @@ func (ec *executionContext) field_Query_partitions_args(ctx context.Context, raw
 		}
 	}
 	args["filter"] = arg5
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_status_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_statuses_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["partitionId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("partitionId"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["partitionId"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg3
+	var arg4 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg4, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg4
+	var arg5 *models2.SortOrder
+	if tmp, ok := rawArgs["sort"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+		arg5, err = ec.unmarshalOStatusSortOrder2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐSortOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sort"] = arg5
+	var arg6 *models2.Filter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg6, err = ec.unmarshalOStatusFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg6
 	return args, nil
 }
 
@@ -2231,6 +2508,84 @@ func (ec *executionContext) _Query_decisionLog(ctx context.Context, field graphq
 	return ec.marshalODecisionLog2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐDecisionLog(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_statuses(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_statuses_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Statuses(rctx, args["partitionId"].(string), args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models2.SortOrder), args["filter"].(*models2.Filter))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.StatusConnection)
+	fc.Result = res
+	return ec.marshalOStatusConnection2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐStatusConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_status(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_status_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Status(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models2.Status)
+	fc.Result = res
+	return ec.marshalOStatus2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐStatus(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2300,6 +2655,315 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Status_id(ctx context.Context, field graphql.CollectedField, obj *models2.Status) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Status",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Status().ID(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Status_createdAt(ctx context.Context, field graphql.CollectedField, obj *models2.Status) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Status",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Status().CreatedAt(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Status_updatedAt(ctx context.Context, field graphql.CollectedField, obj *models2.Status) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Status",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Status().UpdatedAt(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Status_originalMessage(ctx context.Context, field graphql.CollectedField, obj *models2.Status) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Status",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OriginalMessage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Status_partition(ctx context.Context, field graphql.CollectedField, obj *models2.Status) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Status",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Status().Partition(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Partition)
+	fc.Result = res
+	return ec.marshalNPartition2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐPartition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _StatusConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.StatusConnection) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "StatusConnection",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.StatusEdge)
+	fc.Result = res
+	return ec.marshalOStatusEdge2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐStatusEdge(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _StatusConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.StatusConnection) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "StatusConnection",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*utils.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋutilsᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _StatusEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.StatusEdge) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "StatusEdge",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _StatusEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.StatusEdge) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "StatusEdge",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models2.Status)
+	fc.Result = res
+	return ec.marshalOStatus2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐStatus(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -3837,6 +4501,62 @@ func (ec *executionContext) unmarshalInputPartitionSortOrder(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputStatusFilter(ctx context.Context, obj interface{}) (models2.Filter, error) {
+	var it models2.Filter
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "createdAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
+			it.CreatedAt, err = ec.unmarshalODateFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋdatabaseᚋcommonᚐDateFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
+			it.UpdatedAt, err = ec.unmarshalODateFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋdatabaseᚋcommonᚐDateFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputStatusSortOrder(ctx context.Context, obj interface{}) (models2.SortOrder, error) {
+	var it models2.SortOrder
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "createdAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
+			it.CreatedAt, err = ec.unmarshalOSortOrderEnum2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋdatabaseᚋcommonᚐSortOrderEnum(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "updatedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
+			it.UpdatedAt, err = ec.unmarshalOSortOrderEnum2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋdatabaseᚋcommonᚐSortOrderEnum(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputStringFilter(ctx context.Context, obj interface{}) (common.GenericFilter, error) {
 	var it common.GenericFilter
 	var asMap = obj.(map[string]interface{})
@@ -4395,10 +5115,173 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				res = ec._Query_decisionLog(ctx, field)
 				return res
 			})
+		case "statuses":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_statuses(ctx, field)
+				return res
+			})
+		case "status":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_status(ctx, field)
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var statusImplementors = []string{"Status"}
+
+func (ec *executionContext) _Status(ctx context.Context, sel ast.SelectionSet, obj *models2.Status) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, statusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Status")
+		case "id":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Status_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "createdAt":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Status_createdAt(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "updatedAt":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Status_updatedAt(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "originalMessage":
+			out.Values[i] = ec._Status_originalMessage(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "partition":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Status_partition(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var statusConnectionImplementors = []string{"StatusConnection"}
+
+func (ec *executionContext) _StatusConnection(ctx context.Context, sel ast.SelectionSet, obj *model.StatusConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, statusConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("StatusConnection")
+		case "edges":
+			out.Values[i] = ec._StatusConnection_edges(ctx, field, obj)
+		case "pageInfo":
+			out.Values[i] = ec._StatusConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var statusEdgeImplementors = []string{"StatusEdge"}
+
+func (ec *executionContext) _StatusEdge(ctx context.Context, sel ast.SelectionSet, obj *model.StatusEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, statusEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("StatusEdge")
+		case "cursor":
+			out.Values[i] = ec._StatusEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "node":
+			out.Values[i] = ec._StatusEdge_node(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5201,6 +6084,83 @@ func (ec *executionContext) marshalOSortOrderEnum2ᚖgithubᚗcomᚋoxynoᚑzeta
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) marshalOStatus2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐStatus(ctx context.Context, sel ast.SelectionSet, v *models2.Status) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Status(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOStatusConnection2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐStatusConnection(ctx context.Context, sel ast.SelectionSet, v *model.StatusConnection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._StatusConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOStatusEdge2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐStatusEdge(ctx context.Context, sel ast.SelectionSet, v []*model.StatusEdge) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOStatusEdge2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐStatusEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalOStatusEdge2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐStatusEdge(ctx context.Context, sel ast.SelectionSet, v *model.StatusEdge) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._StatusEdge(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOStatusFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐFilter(ctx context.Context, v interface{}) (*models2.Filter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputStatusFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOStatusSortOrder2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐSortOrder(ctx context.Context, v interface{}) (*models2.SortOrder, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputStatusSortOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

@@ -73,6 +73,18 @@ models:
   DecisionLogFilter:
     model:
       - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/decisionlogs/models.Filter"
+  Status:
+    model:
+      - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/statuses/models.Status"
+    fields:
+      id:
+        resolver: true
+  StatusSortOrder:
+    model:
+      - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/statuses/models.SortOrder"
+  StatusFilter:
+    model:
+      - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/statuses/models.Filter"
   Partition:
     model:
       - "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models.Partition"

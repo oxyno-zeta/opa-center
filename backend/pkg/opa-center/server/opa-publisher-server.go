@@ -105,6 +105,7 @@ func (svr *OPAPublisherServer) generateRouter() http.Handler {
 
 	// Add REST endpoints
 	rest.AddDecisionLogsEndpoints(router, svr.busiServices)
+	rest.AddStatusEndpoints(router, svr.busiServices)
 
 	return router
 }

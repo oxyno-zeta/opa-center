@@ -8,6 +8,7 @@ import (
 
 	models1 "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/decisionlogs/models"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models"
+	models3 "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/statuses/models"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/server/graphql/generated"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/server/graphql/mappers"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/server/graphql/model"
@@ -169,6 +170,75 @@ func (r *queryResolver) DecisionLog(ctx context.Context, id *string, decisionLog
 
 	// Call business
 	return r.BusiServices.DecisionLogsSvc.FindByIDOrDecisionID(ctx, bid, decisionLogID, &projection)
+}
+
+func (r *queryResolver) Statuses(ctx context.Context, partitionID string, after *string, before *string, first *int, last *int, sort *models3.SortOrder, filter *models3.Filter) (*model.StatusConnection, error) {
+	// Create projection object
+	projection := models3.Projection{}
+	// Get projection
+	err := utils.ManageConnectionNodeProjection(ctx, &projection)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+	// Ask for id projection
+	projection.ID = true
+
+	// Transform relay id to business id
+	bPartitionID, err := utils.FromIDRelay(partitionID, mappers.PartitionIDPrefix)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+
+	// Get page input
+	pInput, err := utils.GetPageInput(after, before, first, last)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+
+	// Call business
+	list, pOut, err := r.BusiServices.StatusSvc.GetAllPaginated(ctx, bPartitionID, pInput, sort, filter, &projection)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+
+	// Create result
+	var res model.StatusConnection
+	// Manage connection
+	err = utils.MapConnection(&res, list, pOut)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func (r *queryResolver) Status(ctx context.Context, id string) (*models3.Status, error) {
+	// Create projection object
+	projection := models3.Projection{}
+	// Get projection
+	err := utils.ManageSimpleProjection(ctx, &projection)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+	// Ask for id projection
+	// This is forced to have generate urls
+	projection.ID = true
+
+	// Transform relay id to business id
+	bid, err := utils.FromIDRelay(id, mappers.StatusIDPrefix)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+
+	// Get partition
+	return r.BusiServices.StatusSvc.FindByID(ctx, bid, &projection)
 }
 
 // Mutation returns generated.MutationResolver implementation.
