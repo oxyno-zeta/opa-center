@@ -14,7 +14,8 @@ decision_logs:
     min_delay_seconds: 30
     max_delay_seconds: 60
 
-# status:
-#   service: acmecorp
+status:
+  service: acmecorp
+  partition_name: fa608323-ba15-4f4f-b6d7-e544ad8f615a
 
 default_decision: /http/example/authz/allow

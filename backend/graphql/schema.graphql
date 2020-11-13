@@ -94,6 +94,53 @@ type Query {
   Get decision log
   """
   decisionLog(id: String, decisionLogId: String): DecisionLog
+
+  """
+  Get statuses
+  """
+  statuses(
+    """
+    Partition Id in which statuses must be searched
+    """
+    partitionId: String!
+    """
+    Cursor delimiter after you want data (used with first only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    after: String
+    """
+    Cursor delimiter before you want data (used with after only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    before: String
+    """
+    First elements
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    first: Int
+    """
+    Last elements (used only with before)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    last: Int
+    """
+    Sort
+    """
+    sort: StatusSortOrder
+    """
+    Filter
+    """
+    filter: StatusFilter
+  ): StatusConnection
+
+  """
+  Get status
+  """
+  status(id: String!): Status
 }
 
 # Mutation

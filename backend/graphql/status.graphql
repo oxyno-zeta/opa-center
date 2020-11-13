@@ -1,0 +1,27 @@
+type Status {
+  id: String!
+  createdAt: String!
+  updatedAt: String!
+  originalMessage: String!
+  partition: Partition!
+}
+
+type StatusConnection {
+  edges: [StatusEdge]
+  pageInfo: PageInfo!
+}
+
+type StatusEdge {
+  cursor: String!
+  node: Status
+}
+
+input StatusSortOrder {
+  createdAt: SortOrderEnum
+  updatedAt: SortOrderEnum
+}
+
+input StatusFilter {
+  createdAt: DateFilter
+  updatedAt: DateFilter
+}
