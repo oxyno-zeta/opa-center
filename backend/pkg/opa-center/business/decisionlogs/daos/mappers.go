@@ -7,7 +7,6 @@ import (
 )
 
 func toDao(ins *models.DecisionLog) *daomodels.DecisionLog {
-	// TODO Check projections
 	val := &daomodels.DecisionLog{
 		DecisionID:      ins.DecisionID,
 		Path:            ins.Path,
@@ -25,7 +24,6 @@ func toDao(ins *models.DecisionLog) *daomodels.DecisionLog {
 }
 
 func fromDao(ins *daomodels.DecisionLog) (*models.DecisionLog, error) {
-	// TODO Check projections
 	// Transform in string
 	bb, err := ins.OriginalMessage.MarshalJSON()
 	// Check error
