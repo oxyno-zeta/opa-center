@@ -1,8 +1,82 @@
 type Partition {
-  id: String!
+  id: ID!
   createdAt: String!
   updatedAt: String!
   name: String!
+  """
+  Get statuses
+  """
+  statuses(
+    """
+    Cursor delimiter after you want data (used with first only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    after: String
+    """
+    Cursor delimiter before you want data (used with after only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    before: String
+    """
+    First elements
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    first: Int
+    """
+    Last elements (used only with before)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    last: Int
+    """
+    Sort
+    """
+    sort: StatusSortOrder
+    """
+    Filter
+    """
+    filter: StatusFilter
+  ): StatusConnection
+  """
+  Get decision logs
+  """
+  decisionLogs(
+    """
+    Cursor delimiter after you want data (used with first only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    after: String
+    """
+    Cursor delimiter before you want data (used with after only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    before: String
+    """
+    First elements
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    first: Int
+    """
+    Last elements (used only with before)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    last: Int
+    """
+    Sort
+    """
+    sort: DecisionLogSortOrder
+    """
+    Filter
+    """
+    filter: DecisionLogFilter
+  ): DecisionLogConnection
 }
 
 type PartitionConnection {

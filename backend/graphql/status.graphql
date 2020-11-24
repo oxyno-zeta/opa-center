@@ -1,5 +1,5 @@
 type Status {
-  id: String!
+  id: ID!
   createdAt: String!
   updatedAt: String!
   originalMessage: String!

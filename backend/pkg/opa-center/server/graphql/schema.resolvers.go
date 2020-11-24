@@ -100,51 +100,6 @@ func (r *queryResolver) OpaConfiguration(ctx context.Context, partitionID string
 	return r.BusiServices.PartitionsSvc.GenerateOPAConfiguration(ctx, bid)
 }
 
-func (r *queryResolver) DecisionLogs(ctx context.Context, partitionID string, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) (*model.DecisionLogConnection, error) {
-	// Create projection object
-	projection := models1.Projection{}
-	// Get projection
-	err := utils.ManageConnectionNodeProjection(ctx, &projection)
-	// Check error
-	if err != nil {
-		return nil, err
-	}
-	// Ask for id projection
-	projection.ID = true
-
-	// Transform relay id to business id
-	bPartitionID, err := utils.FromIDRelay(partitionID, mappers.PartitionIDPrefix)
-	// Check error
-	if err != nil {
-		return nil, err
-	}
-
-	// Get page input
-	pInput, err := utils.GetPageInput(after, before, first, last)
-	// Check error
-	if err != nil {
-		return nil, err
-	}
-
-	// Call business
-	list, pOut, err := r.BusiServices.DecisionLogsSvc.GetAllPaginated(ctx, bPartitionID, pInput, sort, filter, &projection)
-	// Check error
-	if err != nil {
-		return nil, err
-	}
-
-	// Create result
-	var res model.DecisionLogConnection
-	// Manage connection
-	err = utils.MapConnection(&res, list, pOut)
-	// Check error
-	if err != nil {
-		return nil, err
-	}
-
-	return &res, nil
-}
-
 func (r *queryResolver) DecisionLog(ctx context.Context, id *string, decisionLogID *string) (*models1.DecisionLog, error) {
 	// Create projection
 	projection := models1.Projection{}
@@ -170,51 +125,6 @@ func (r *queryResolver) DecisionLog(ctx context.Context, id *string, decisionLog
 
 	// Call business
 	return r.BusiServices.DecisionLogsSvc.FindByIDOrDecisionID(ctx, bid, decisionLogID, &projection)
-}
-
-func (r *queryResolver) Statuses(ctx context.Context, partitionID string, after *string, before *string, first *int, last *int, sort *models3.SortOrder, filter *models3.Filter) (*model.StatusConnection, error) {
-	// Create projection object
-	projection := models3.Projection{}
-	// Get projection
-	err := utils.ManageConnectionNodeProjection(ctx, &projection)
-	// Check error
-	if err != nil {
-		return nil, err
-	}
-	// Ask for id projection
-	projection.ID = true
-
-	// Transform relay id to business id
-	bPartitionID, err := utils.FromIDRelay(partitionID, mappers.PartitionIDPrefix)
-	// Check error
-	if err != nil {
-		return nil, err
-	}
-
-	// Get page input
-	pInput, err := utils.GetPageInput(after, before, first, last)
-	// Check error
-	if err != nil {
-		return nil, err
-	}
-
-	// Call business
-	list, pOut, err := r.BusiServices.StatusSvc.GetAllPaginated(ctx, bPartitionID, pInput, sort, filter, &projection)
-	// Check error
-	if err != nil {
-		return nil, err
-	}
-
-	// Create result
-	var res model.StatusConnection
-	// Manage connection
-	err = utils.MapConnection(&res, list, pOut)
-	// Check error
-	if err != nil {
-		return nil, err
-	}
-
-	return &res, nil
 }
 
 func (r *queryResolver) Status(ctx context.Context, id string) (*models3.Status, error) {

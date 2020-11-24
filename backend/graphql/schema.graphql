@@ -41,106 +41,22 @@ type Query {
   """
   Get partition
   """
-  partition(id: String!): Partition
+  partition(id: ID!): Partition
 
   """
   Generate OPA Configuration file
   """
-  opaConfiguration(partitionId: String!): String!
-
-  """
-  Get decision logs
-  """
-  decisionLogs(
-    """
-    Partition Id in which decision logs must be searched
-    """
-    partitionId: String!
-    """
-    Cursor delimiter after you want data (used with first only)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
-    """
-    after: String
-    """
-    Cursor delimiter before you want data (used with after only)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
-    """
-    before: String
-    """
-    First elements
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
-    """
-    first: Int
-    """
-    Last elements (used only with before)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
-    """
-    last: Int
-    """
-    Sort
-    """
-    sort: DecisionLogSortOrder
-    """
-    Filter
-    """
-    filter: DecisionLogFilter
-  ): DecisionLogConnection
+  opaConfiguration(partitionId: ID!): String!
 
   """
   Get decision log
   """
-  decisionLog(id: String, decisionLogId: String): DecisionLog
-
-  """
-  Get statuses
-  """
-  statuses(
-    """
-    Partition Id in which statuses must be searched
-    """
-    partitionId: String!
-    """
-    Cursor delimiter after you want data (used with first only)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
-    """
-    after: String
-    """
-    Cursor delimiter before you want data (used with after only)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
-    """
-    before: String
-    """
-    First elements
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
-    """
-    first: Int
-    """
-    Last elements (used only with before)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
-    """
-    last: Int
-    """
-    Sort
-    """
-    sort: StatusSortOrder
-    """
-    Filter
-    """
-    filter: StatusFilter
-  ): StatusConnection
+  decisionLog(id: ID, decisionLogId: String): DecisionLog
 
   """
   Get status
   """
-  status(id: String!): Status
+  status(id: ID!): Status
 }
 
 # Mutation

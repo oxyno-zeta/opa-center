@@ -89,10 +89,12 @@ type ComplexityRoot struct {
 	}
 
 	Partition struct {
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Name      func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		DecisionLogs func(childComplexity int, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) int
+		ID           func(childComplexity int) int
+		Name         func(childComplexity int) int
+		Statuses     func(childComplexity int, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) int
+		UpdatedAt    func(childComplexity int) int
 	}
 
 	PartitionConnection struct {
@@ -107,12 +109,10 @@ type ComplexityRoot struct {
 
 	Query struct {
 		DecisionLog      func(childComplexity int, id *string, decisionLogID *string) int
-		DecisionLogs     func(childComplexity int, partitionID string, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) int
 		OpaConfiguration func(childComplexity int, partitionID string) int
 		Partition        func(childComplexity int, id string) int
 		Partitions       func(childComplexity int, after *string, before *string, first *int, last *int, sort *models.SortOrder, filter *models.Filter) int
 		Status           func(childComplexity int, id string) int
-		Statuses         func(childComplexity int, partitionID string, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) int
 	}
 
 	Status struct {
@@ -150,14 +150,15 @@ type PartitionResolver interface {
 	ID(ctx context.Context, obj *models.Partition) (string, error)
 	CreatedAt(ctx context.Context, obj *models.Partition) (string, error)
 	UpdatedAt(ctx context.Context, obj *models.Partition) (string, error)
+
+	Statuses(ctx context.Context, obj *models.Partition, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) (*model.StatusConnection, error)
+	DecisionLogs(ctx context.Context, obj *models.Partition, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) (*model.DecisionLogConnection, error)
 }
 type QueryResolver interface {
 	Partitions(ctx context.Context, after *string, before *string, first *int, last *int, sort *models.SortOrder, filter *models.Filter) (*model.PartitionConnection, error)
 	Partition(ctx context.Context, id string) (*models.Partition, error)
 	OpaConfiguration(ctx context.Context, partitionID string) (string, error)
-	DecisionLogs(ctx context.Context, partitionID string, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) (*model.DecisionLogConnection, error)
 	DecisionLog(ctx context.Context, id *string, decisionLogID *string) (*models1.DecisionLog, error)
-	Statuses(ctx context.Context, partitionID string, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) (*model.StatusConnection, error)
 	Status(ctx context.Context, id string) (*models2.Status, error)
 }
 type StatusResolver interface {
@@ -328,6 +329,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Partition.CreatedAt(childComplexity), true
 
+	case "Partition.decisionLogs":
+		if e.complexity.Partition.DecisionLogs == nil {
+			break
+		}
+
+		args, err := ec.field_Partition_decisionLogs_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Partition.DecisionLogs(childComplexity, args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models1.SortOrder), args["filter"].(*models1.Filter)), true
+
 	case "Partition.id":
 		if e.complexity.Partition.ID == nil {
 			break
@@ -341,6 +354,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Partition.Name(childComplexity), true
+
+	case "Partition.statuses":
+		if e.complexity.Partition.Statuses == nil {
+			break
+		}
+
+		args, err := ec.field_Partition_statuses_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Partition.Statuses(childComplexity, args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models2.SortOrder), args["filter"].(*models2.Filter)), true
 
 	case "Partition.updatedAt":
 		if e.complexity.Partition.UpdatedAt == nil {
@@ -389,18 +414,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.DecisionLog(childComplexity, args["id"].(*string), args["decisionLogId"].(*string)), true
 
-	case "Query.decisionLogs":
-		if e.complexity.Query.DecisionLogs == nil {
-			break
-		}
-
-		args, err := ec.field_Query_decisionLogs_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.DecisionLogs(childComplexity, args["partitionId"].(string), args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models1.SortOrder), args["filter"].(*models1.Filter)), true
-
 	case "Query.opaConfiguration":
 		if e.complexity.Query.OpaConfiguration == nil {
 			break
@@ -448,18 +461,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Status(childComplexity, args["id"].(string)), true
-
-	case "Query.statuses":
-		if e.complexity.Query.Statuses == nil {
-			break
-		}
-
-		args, err := ec.field_Query_statuses_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Statuses(childComplexity, args["partitionId"].(string), args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models2.SortOrder), args["filter"].(*models2.Filter)), true
 
 	case "Status.createdAt":
 		if e.complexity.Status.CreatedAt == nil {
@@ -589,7 +590,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "graphql/decision-log.graphql", Input: `type DecisionLog {
-  id: String!
+  id: ID!
   createdAt: String!
   updatedAt: String!
   decisionId: String!
@@ -628,10 +629,84 @@ input DecisionLogFilter {
 }
 `, BuiltIn: false},
 	{Name: "graphql/partition.graphql", Input: `type Partition {
-  id: String!
+  id: ID!
   createdAt: String!
   updatedAt: String!
   name: String!
+  """
+  Get statuses
+  """
+  statuses(
+    """
+    Cursor delimiter after you want data (used with first only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    after: String
+    """
+    Cursor delimiter before you want data (used with after only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    before: String
+    """
+    First elements
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    first: Int
+    """
+    Last elements (used only with before)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    last: Int
+    """
+    Sort
+    """
+    sort: StatusSortOrder
+    """
+    Filter
+    """
+    filter: StatusFilter
+  ): StatusConnection
+  """
+  Get decision logs
+  """
+  decisionLogs(
+    """
+    Cursor delimiter after you want data (used with first only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    after: String
+    """
+    Cursor delimiter before you want data (used with after only)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    before: String
+    """
+    First elements
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
+    """
+    first: Int
+    """
+    Last elements (used only with before)
+
+    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
+    """
+    last: Int
+    """
+    Sort
+    """
+    sort: DecisionLogSortOrder
+    """
+    Filter
+    """
+    filter: DecisionLogFilter
+  ): DecisionLogConnection
 }
 
 type PartitionConnection {
@@ -707,106 +782,22 @@ type Query {
   """
   Get partition
   """
-  partition(id: String!): Partition
+  partition(id: ID!): Partition
 
   """
   Generate OPA Configuration file
   """
-  opaConfiguration(partitionId: String!): String!
-
-  """
-  Get decision logs
-  """
-  decisionLogs(
-    """
-    Partition Id in which decision logs must be searched
-    """
-    partitionId: String!
-    """
-    Cursor delimiter after you want data (used with first only)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
-    """
-    after: String
-    """
-    Cursor delimiter before you want data (used with after only)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
-    """
-    before: String
-    """
-    First elements
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
-    """
-    first: Int
-    """
-    Last elements (used only with before)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
-    """
-    last: Int
-    """
-    Sort
-    """
-    sort: DecisionLogSortOrder
-    """
-    Filter
-    """
-    filter: DecisionLogFilter
-  ): DecisionLogConnection
+  opaConfiguration(partitionId: ID!): String!
 
   """
   Get decision log
   """
-  decisionLog(id: String, decisionLogId: String): DecisionLog
-
-  """
-  Get statuses
-  """
-  statuses(
-    """
-    Partition Id in which statuses must be searched
-    """
-    partitionId: String!
-    """
-    Cursor delimiter after you want data (used with first only)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
-    """
-    after: String
-    """
-    Cursor delimiter before you want data (used with after only)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
-    """
-    before: String
-    """
-    First elements
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Forward-pagination-arguments
-    """
-    first: Int
-    """
-    Last elements (used only with before)
-
-    See here: https://relay.dev/graphql/connections.htm#sec-Backward-pagination-arguments
-    """
-    last: Int
-    """
-    Sort
-    """
-    sort: StatusSortOrder
-    """
-    Filter
-    """
-    filter: StatusFilter
-  ): StatusConnection
+  decisionLog(id: ID, decisionLogId: String): DecisionLog
 
   """
   Get status
   """
-  status(id: String!): Status
+  status(id: ID!): Status
 }
 
 # Mutation
@@ -815,7 +806,7 @@ type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "graphql/status.graphql", Input: `type Status {
-  id: String!
+  id: ID!
   createdAt: String!
   updatedAt: String!
   originalMessage: String!
@@ -1062,6 +1053,126 @@ func (ec *executionContext) field_Mutation_createPartition_args(ctx context.Cont
 	return args, nil
 }
 
+func (ec *executionContext) field_Partition_decisionLogs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg3
+	var arg4 *models1.SortOrder
+	if tmp, ok := rawArgs["sort"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+		arg4, err = ec.unmarshalODecisionLogSortOrder2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐSortOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sort"] = arg4
+	var arg5 *models1.Filter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg5, err = ec.unmarshalODecisionLogFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg5
+	return args, nil
+}
+
+func (ec *executionContext) field_Partition_statuses_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["after"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg3
+	var arg4 *models2.SortOrder
+	if tmp, ok := rawArgs["sort"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+		arg4, err = ec.unmarshalOStatusSortOrder2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐSortOrder(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sort"] = arg4
+	var arg5 *models2.Filter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg5, err = ec.unmarshalOStatusFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg5
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1083,7 +1194,7 @@ func (ec *executionContext) field_Query_decisionLog_args(ctx context.Context, ra
 	var arg0 *string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1101,82 +1212,13 @@ func (ec *executionContext) field_Query_decisionLog_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_decisionLogs_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["partitionId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("partitionId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["partitionId"] = arg0
-	var arg1 *string
-	if tmp, ok := rawArgs["after"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["after"] = arg1
-	var arg2 *string
-	if tmp, ok := rawArgs["before"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["before"] = arg2
-	var arg3 *int
-	if tmp, ok := rawArgs["first"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["first"] = arg3
-	var arg4 *int
-	if tmp, ok := rawArgs["last"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-		arg4, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["last"] = arg4
-	var arg5 *models1.SortOrder
-	if tmp, ok := rawArgs["sort"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
-		arg5, err = ec.unmarshalODecisionLogSortOrder2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐSortOrder(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["sort"] = arg5
-	var arg6 *models1.Filter
-	if tmp, ok := rawArgs["filter"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg6, err = ec.unmarshalODecisionLogFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐFilter(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["filter"] = arg6
-	return args, nil
-}
-
 func (ec *executionContext) field_Query_opaConfiguration_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["partitionId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("partitionId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1191,7 +1233,7 @@ func (ec *executionContext) field_Query_partition_args(ctx context.Context, rawA
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1266,81 +1308,12 @@ func (ec *executionContext) field_Query_status_args(ctx context.Context, rawArgs
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_statuses_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["partitionId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("partitionId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["partitionId"] = arg0
-	var arg1 *string
-	if tmp, ok := rawArgs["after"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["after"] = arg1
-	var arg2 *string
-	if tmp, ok := rawArgs["before"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["before"] = arg2
-	var arg3 *int
-	if tmp, ok := rawArgs["first"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["first"] = arg3
-	var arg4 *int
-	if tmp, ok := rawArgs["last"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-		arg4, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["last"] = arg4
-	var arg5 *models2.SortOrder
-	if tmp, ok := rawArgs["sort"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
-		arg5, err = ec.unmarshalOStatusSortOrder2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐSortOrder(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["sort"] = arg5
-	var arg6 *models2.Filter
-	if tmp, ok := rawArgs["filter"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg6, err = ec.unmarshalOStatusFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐFilter(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["filter"] = arg6
 	return args, nil
 }
 
@@ -1446,7 +1419,7 @@ func (ec *executionContext) _DecisionLog_id(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _DecisionLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *models1.DecisionLog) (ret graphql.Marshaler) {
@@ -2068,7 +2041,7 @@ func (ec *executionContext) _Partition_id(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Partition_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.Partition) (ret graphql.Marshaler) {
@@ -2174,6 +2147,84 @@ func (ec *executionContext) _Partition_name(ctx context.Context, field graphql.C
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Partition_statuses(ctx context.Context, field graphql.CollectedField, obj *models.Partition) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Partition",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Partition_statuses_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Partition().Statuses(rctx, obj, args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models2.SortOrder), args["filter"].(*models2.Filter))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.StatusConnection)
+	fc.Result = res
+	return ec.marshalOStatusConnection2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐStatusConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Partition_decisionLogs(ctx context.Context, field graphql.CollectedField, obj *models.Partition) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Partition",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Partition_decisionLogs_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Partition().DecisionLogs(rctx, obj, args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models1.SortOrder), args["filter"].(*models1.Filter))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.DecisionLogConnection)
+	fc.Result = res
+	return ec.marshalODecisionLogConnection2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐDecisionLogConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PartitionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.PartitionConnection) (ret graphql.Marshaler) {
@@ -2430,45 +2481,6 @@ func (ec *executionContext) _Query_opaConfiguration(ctx context.Context, field g
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_decisionLogs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_decisionLogs_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().DecisionLogs(rctx, args["partitionId"].(string), args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models1.SortOrder), args["filter"].(*models1.Filter))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.DecisionLogConnection)
-	fc.Result = res
-	return ec.marshalODecisionLogConnection2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐDecisionLogConnection(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _Query_decisionLog(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2506,45 +2518,6 @@ func (ec *executionContext) _Query_decisionLog(ctx context.Context, field graphq
 	res := resTmp.(*models1.DecisionLog)
 	fc.Result = res
 	return ec.marshalODecisionLog2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐDecisionLog(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Query_statuses(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_statuses_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Statuses(rctx, args["partitionId"].(string), args["after"].(*string), args["before"].(*string), args["first"].(*int), args["last"].(*int), args["sort"].(*models2.SortOrder), args["filter"].(*models2.Filter))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.StatusConnection)
-	fc.Result = res
-	return ec.marshalOStatusConnection2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐStatusConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_status(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2689,7 +2662,7 @@ func (ec *executionContext) _Status_id(ctx context.Context, field graphql.Collec
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Status_createdAt(ctx context.Context, field graphql.CollectedField, obj *models2.Status) (ret graphql.Marshaler) {
@@ -4973,6 +4946,28 @@ func (ec *executionContext) _Partition(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "statuses":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Partition_statuses(ctx, field, obj)
+				return res
+			})
+		case "decisionLogs":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Partition_decisionLogs(ctx, field, obj)
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5093,17 +5088,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
-		case "decisionLogs":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_decisionLogs(ctx, field)
-				return res
-			})
 		case "decisionLog":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -5113,17 +5097,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_decisionLog(ctx, field)
-				return res
-			})
-		case "statuses":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_statuses(ctx, field)
 				return res
 			})
 		case "status":
@@ -5558,6 +5531,21 @@ func (ec *executionContext) unmarshalNCreatePartitionInput2githubᚗcomᚋoxyno�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalID(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalID(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋutilsᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v *utils.PageInfo) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5940,6 +5928,21 @@ func (ec *executionContext) unmarshalODecisionLogSortOrder2ᚖgithubᚗcomᚋoxy
 	}
 	res, err := ec.unmarshalInputDecisionLogSortOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalID(*v)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚕᚖint(ctx context.Context, v interface{}) ([]*int, error) {
