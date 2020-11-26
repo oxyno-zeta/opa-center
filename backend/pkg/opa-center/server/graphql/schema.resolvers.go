@@ -30,7 +30,7 @@ func (r *queryResolver) Partitions(ctx context.Context, after *string, before *s
 	// Create projection object
 	projection := models.Projection{}
 	// Get projection
-	err := utils.ManageSimpleProjection(ctx, &projection)
+	err := utils.ManageConnectionNodeProjection(ctx, &projection)
 	// Check error
 	if err != nil {
 		return nil, err
