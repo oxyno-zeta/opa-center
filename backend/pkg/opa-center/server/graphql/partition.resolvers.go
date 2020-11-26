@@ -27,6 +27,10 @@ func (r *partitionResolver) UpdatedAt(ctx context.Context, obj *models.Partition
 	return utils.FormatTime(obj.UpdatedAt), nil
 }
 
+func (r *partitionResolver) OpaConfiguration(ctx context.Context, obj *models.Partition) (string, error) {
+	return r.BusiServices.PartitionsSvc.GenerateOPAConfiguration(ctx, obj.ID)
+}
+
 func (r *partitionResolver) Statuses(ctx context.Context, obj *models.Partition, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) (*model.StatusConnection, error) {
 	// Create projection object
 	projection := models1.Projection{}

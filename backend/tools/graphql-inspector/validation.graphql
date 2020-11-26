@@ -42,6 +42,10 @@ type Partition {
   updatedAt: String!
   name: String!
   """
+  Generate OPA Configuration file
+  """
+  opaConfiguration: String!
+  """
   Get statuses
   """
   statuses(
@@ -190,11 +194,6 @@ type Query {
   Get partition
   """
   partition(id: ID!): Partition
-
-  """
-  Generate OPA Configuration file
-  """
-  opaConfiguration(partitionId: ID!): String!
 
   """
   Get decision log

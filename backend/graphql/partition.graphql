@@ -4,6 +4,10 @@ type Partition {
   updatedAt: String!
   name: String!
   """
+  Generate OPA Configuration file
+  """
+  opaConfiguration: String!
+  """
   Get statuses
   """
   statuses(

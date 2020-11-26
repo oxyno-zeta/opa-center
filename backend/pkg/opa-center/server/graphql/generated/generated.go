@@ -89,12 +89,13 @@ type ComplexityRoot struct {
 	}
 
 	Partition struct {
-		CreatedAt    func(childComplexity int) int
-		DecisionLogs func(childComplexity int, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) int
-		ID           func(childComplexity int) int
-		Name         func(childComplexity int) int
-		Statuses     func(childComplexity int, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) int
-		UpdatedAt    func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		DecisionLogs     func(childComplexity int, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) int
+		ID               func(childComplexity int) int
+		Name             func(childComplexity int) int
+		OpaConfiguration func(childComplexity int) int
+		Statuses         func(childComplexity int, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) int
+		UpdatedAt        func(childComplexity int) int
 	}
 
 	PartitionConnection struct {
@@ -108,11 +109,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		DecisionLog      func(childComplexity int, id *string, decisionLogID *string) int
-		OpaConfiguration func(childComplexity int, partitionID string) int
-		Partition        func(childComplexity int, id string) int
-		Partitions       func(childComplexity int, after *string, before *string, first *int, last *int, sort *models.SortOrder, filter *models.Filter) int
-		Status           func(childComplexity int, id string) int
+		DecisionLog func(childComplexity int, id *string, decisionLogID *string) int
+		Partition   func(childComplexity int, id string) int
+		Partitions  func(childComplexity int, after *string, before *string, first *int, last *int, sort *models.SortOrder, filter *models.Filter) int
+		Status      func(childComplexity int, id string) int
 	}
 
 	Status struct {
@@ -151,13 +151,13 @@ type PartitionResolver interface {
 	CreatedAt(ctx context.Context, obj *models.Partition) (string, error)
 	UpdatedAt(ctx context.Context, obj *models.Partition) (string, error)
 
+	OpaConfiguration(ctx context.Context, obj *models.Partition) (string, error)
 	Statuses(ctx context.Context, obj *models.Partition, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) (*model.StatusConnection, error)
 	DecisionLogs(ctx context.Context, obj *models.Partition, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) (*model.DecisionLogConnection, error)
 }
 type QueryResolver interface {
 	Partitions(ctx context.Context, after *string, before *string, first *int, last *int, sort *models.SortOrder, filter *models.Filter) (*model.PartitionConnection, error)
 	Partition(ctx context.Context, id string) (*models.Partition, error)
-	OpaConfiguration(ctx context.Context, partitionID string) (string, error)
 	DecisionLog(ctx context.Context, id *string, decisionLogID *string) (*models1.DecisionLog, error)
 	Status(ctx context.Context, id string) (*models2.Status, error)
 }
@@ -355,6 +355,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Partition.Name(childComplexity), true
 
+	case "Partition.opaConfiguration":
+		if e.complexity.Partition.OpaConfiguration == nil {
+			break
+		}
+
+		return e.complexity.Partition.OpaConfiguration(childComplexity), true
+
 	case "Partition.statuses":
 		if e.complexity.Partition.Statuses == nil {
 			break
@@ -413,18 +420,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.DecisionLog(childComplexity, args["id"].(*string), args["decisionLogId"].(*string)), true
-
-	case "Query.opaConfiguration":
-		if e.complexity.Query.OpaConfiguration == nil {
-			break
-		}
-
-		args, err := ec.field_Query_opaConfiguration_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.OpaConfiguration(childComplexity, args["partitionId"].(string)), true
 
 	case "Query.partition":
 		if e.complexity.Query.Partition == nil {
@@ -634,6 +629,10 @@ input DecisionLogFilter {
   updatedAt: String!
   name: String!
   """
+  Generate OPA Configuration file
+  """
+  opaConfiguration: String!
+  """
   Get statuses
   """
   statuses(
@@ -783,11 +782,6 @@ type Query {
   Get partition
   """
   partition(id: ID!): Partition
-
-  """
-  Generate OPA Configuration file
-  """
-  opaConfiguration(partitionId: ID!): String!
 
   """
   Get decision log
@@ -1209,21 +1203,6 @@ func (ec *executionContext) field_Query_decisionLog_args(ctx context.Context, ra
 		}
 	}
 	args["decisionLogId"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_opaConfiguration_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["partitionId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("partitionId"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["partitionId"] = arg0
 	return args, nil
 }
 
@@ -2149,6 +2128,41 @@ func (ec *executionContext) _Partition_name(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Partition_opaConfiguration(ctx context.Context, field graphql.CollectedField, obj *models.Partition) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Partition",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Partition().OpaConfiguration(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Partition_statuses(ctx context.Context, field graphql.CollectedField, obj *models.Partition) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2437,48 +2451,6 @@ func (ec *executionContext) _Query_partition(ctx context.Context, field graphql.
 	res := resTmp.(*models.Partition)
 	fc.Result = res
 	return ec.marshalOPartition2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐPartition(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Query_opaConfiguration(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_opaConfiguration_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OpaConfiguration(rctx, args["partitionId"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_decisionLog(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4946,6 +4918,20 @@ func (ec *executionContext) _Partition(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "opaConfiguration":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Partition_opaConfiguration(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "statuses":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -5072,20 +5058,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_partition(ctx, field)
-				return res
-			})
-		case "opaConfiguration":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_opaConfiguration(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			})
 		case "decisionLog":

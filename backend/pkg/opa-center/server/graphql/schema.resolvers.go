@@ -89,17 +89,6 @@ func (r *queryResolver) Partition(ctx context.Context, id string) (*models.Parti
 	return r.BusiServices.PartitionsSvc.FindByID(ctx, bid, &projection)
 }
 
-func (r *queryResolver) OpaConfiguration(ctx context.Context, partitionID string) (string, error) {
-	// Transform relay id to business id
-	bid, err := utils.FromIDRelay(partitionID, mappers.PartitionIDPrefix)
-	// Check error
-	if err != nil {
-		return "", err
-	}
-
-	return r.BusiServices.PartitionsSvc.GenerateOPAConfiguration(ctx, bid)
-}
-
 func (r *queryResolver) DecisionLog(ctx context.Context, id *string, decisionLogID *string) (*models1.DecisionLog, error) {
 	// Create projection
 	projection := models1.Projection{}
