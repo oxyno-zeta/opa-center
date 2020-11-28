@@ -37,5 +37,5 @@ require (
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gorm.io/datatypes v1.0.0
 	gorm.io/driver/postgres v1.0.5
-	gorm.io/gorm v1.20.6
+	gorm.io/gorm v1.20.7
 )
