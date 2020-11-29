@@ -3,7 +3,6 @@ module github.com/oxyno-zeta/opa-center
 go 1.13
 
 require (
-	cirello.io/pglock v1.8.0
 	github.com/99designs/gqlgen v0.13.0
 	github.com/99designs/gqlgen-contrib v0.1.1-0.20200601100547-7a955d321bbd
 	github.com/DATA-DOG/go-sqlmock v1.5.0
@@ -19,7 +18,6 @@ require (
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/golang/mock v1.4.4
-	github.com/jinzhu/gorm v1.9.16
 	github.com/opentracing-contrib/go-gin v0.0.0-20190301172248-2e18f8b9c7d4
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
