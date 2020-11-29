@@ -2,7 +2,10 @@ oidcAuthentication:
   clientID: client-without-secret
   state: my-secret-state-key
   issuerUrl: http://localhost:8088/auth/realms/integration
+  # Backend development
   redirectUrl: http://localhost:8080/ # /auth/oidc/callback will be added
+  # UI development
+  # redirectUrl: http://localhost:3000/ # /auth/oidc/callback will be added
   emailVerified: true
 
 opaServerAuthorization:
