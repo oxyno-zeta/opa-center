@@ -40,6 +40,8 @@ archives:
   - format_overrides:
       - goos: windows
         format: zip
+    files:
+      - static/*
 checksum:
   name_template: "checksums.txt"
 snapshot:
@@ -71,7 +73,7 @@ dockers:
       - "--label=oxyno-zeta.opa-center.version={{ .Version }}"
       - "--label=oxyno-zeta.opa-center.name={{ .ProjectName }}"
     extra_files:
-      - templates/
+      - static/
   # Disabled because can't build arm on release laptop
   # - goos: linux
   #   goarch: arm

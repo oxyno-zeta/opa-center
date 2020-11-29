@@ -12,6 +12,7 @@ RUN apk add --update ca-certificates && rm -rf /var/cache/apk/* && \
 WORKDIR /$USER
 
 COPY $APP /$USER/$APP
+COPY static /$USER/static
 
 RUN chown -R $UID:$GID /$USER
 
