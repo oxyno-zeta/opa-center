@@ -13,6 +13,11 @@ decision_logs:
   reporting:
     min_delay_seconds: 30
     max_delay_seconds: 60
+
+status:
+  service: opacenter-{{ .Partition.Name }}
+  partition_name: {{ .Partition.ID }}
+
 `
 
 func loadOpaCfgTemplate() (*template.Template, error) {
