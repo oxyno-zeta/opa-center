@@ -15,6 +15,15 @@ const DefaultOPAPublisherPort = 8081
 // DefaultInternalPort Default internal port.
 const DefaultInternalPort = 9090
 
+// Default lock distributor table name.
+const DefaultLockDistributorTableName = "locks"
+
+// Default lock distribution lease duration.
+const DefaultLockDistributorLeaseDuration = "3s"
+
+// Default lock distributor heartbeat frequency.
+const DefaultLockDistributionHeartbeatFrequency = "1s"
+
 // DefaultOIDCScopes Default OIDC scopes.
 var DefaultOIDCScopes = []string{"openid", "email", "profile"}
 
@@ -29,10 +38,17 @@ type Config struct {
 	InternalServer         *ServerConfig           `mapstructure:"internalServer"`
 	OPAPublisherServer     *ServerConfig           `mapstructure:"opaPublisherServer"`
 	Database               *DatabaseConfig         `mapstructure:"database" validate:"required"`
+	LockDistributor        *LockDistributorConfig  `mapstructure:"lockDistributor" validate:"required"`
 	OIDCAuthentication     *OIDCAuthConfig         `mapstructure:"oidcAuthentication"`
 	OPAServerAuthorization *OPAServerAuthorization `mapstructure:"opaServerAuthorization"`
-	// OPAPublisherAuthentication *OPAPublisherAuthenticationConfig `mapstructure:"opaPublisherAuthentication"`
-	Center *CenterConfig `mapstructure:"center" validate:"required"`
+	Center                 *CenterConfig           `mapstructure:"center" validate:"required"`
+}
+
+// LockDistributorConfig Lock distributor configuration.
+type LockDistributorConfig struct {
+	TableName          string `mapstructure:"tableName" validate:"required"`
+	LeaseDuration      string `mapstructure:"leaseDuration" validate:"required"`
+	HeartbeatFrequency string `mapstructure:"heartbeatFrequency" validate:"required"`
 }
 
 // OIDCAuthConfig OpenID Connect authentication configurations.

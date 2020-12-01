@@ -71,6 +71,11 @@ database:
 				Server:             &ServerConfig{Port: 8080},
 				InternalServer:     &ServerConfig{Port: 9090},
 				OPAPublisherServer: &ServerConfig{Port: 9090},
+				LockDistributor: &LockDistributorConfig{
+					HeartbeatFrequency: "1s",
+					LeaseDuration:      "3s",
+					TableName:          "locks",
+				},
 			},
 		},
 	}
@@ -215,6 +220,11 @@ tracing:
 
 			ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
 		},
+		LockDistributor: &LockDistributorConfig{
+			HeartbeatFrequency: "1s",
+			LeaseDuration:      "3s",
+			TableName:          "locks",
+		},
 	}, res)
 
 	configs = map[string]string{
@@ -252,6 +262,11 @@ log:
 			Tracing:            &TracingConfig{Enabled: true},
 			Database: &DatabaseConfig{
 				ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
+			},
+			LockDistributor: &LockDistributorConfig{
+				HeartbeatFrequency: "1s",
+				LeaseDuration:      "3s",
+				TableName:          "locks",
 			},
 		}, res)
 		return
@@ -348,6 +363,11 @@ oidcAuthentication:
 		Database: &DatabaseConfig{
 			ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
 		},
+		LockDistributor: &LockDistributorConfig{
+			HeartbeatFrequency: "1s",
+			LeaseDuration:      "3s",
+			TableName:          "locks",
+		},
 		OIDCAuthentication: &OIDCAuthConfig{
 			ClientID: "client-with-secret",
 			ClientSecret: &CredentialConfig{
@@ -396,6 +416,11 @@ oidcAuthentication:
 			Tracing:            &TracingConfig{Enabled: true},
 			Database: &DatabaseConfig{
 				ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
+			},
+			LockDistributor: &LockDistributorConfig{
+				HeartbeatFrequency: "1s",
+				LeaseDuration:      "3s",
+				TableName:          "locks",
 			},
 			OIDCAuthentication: &OIDCAuthConfig{
 				ClientID: "client-with-secret",
@@ -494,6 +519,11 @@ tracing:
 		Tracing:            &TracingConfig{Enabled: true},
 		Database: &DatabaseConfig{
 			ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
+		},
+		LockDistributor: &LockDistributorConfig{
+			HeartbeatFrequency: "1s",
+			LeaseDuration:      "3s",
+			TableName:          "locks",
 		},
 	}, res)
 
@@ -631,6 +661,11 @@ opaServerAuthorization:
 		Database: &DatabaseConfig{
 			ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
 		},
+		LockDistributor: &LockDistributorConfig{
+			HeartbeatFrequency: "1s",
+			LeaseDuration:      "3s",
+			TableName:          "locks",
+		},
 		OPAServerAuthorization: &OPAServerAuthorization{
 			URL: "http://fake.com",
 			Tags: map[string]string{
@@ -675,6 +710,11 @@ opaServerAuthorization:
 			Tracing:            &TracingConfig{Enabled: true},
 			Database: &DatabaseConfig{
 				ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
+			},
+			LockDistributor: &LockDistributorConfig{
+				HeartbeatFrequency: "1s",
+				LeaseDuration:      "3s",
+				TableName:          "locks",
 			},
 			OPAServerAuthorization: &OPAServerAuthorization{
 				URL: "http://fake.com",
@@ -777,6 +817,11 @@ database:
 		Tracing:            &TracingConfig{Enabled: false},
 		Database: &DatabaseConfig{
 			ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
+		},
+		LockDistributor: &LockDistributorConfig{
+			HeartbeatFrequency: "1s",
+			LeaseDuration:      "3s",
+			TableName:          "locks",
 		},
 	}, res)
 }
