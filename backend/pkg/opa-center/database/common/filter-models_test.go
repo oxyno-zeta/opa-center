@@ -1,4 +1,4 @@
-// +build unit
+//+build unit
 
 package common
 
@@ -20,18 +20,20 @@ func TestDateFilter_GetGenericFilter(t *testing.T) {
 	date = date.UTC()
 
 	type fields struct {
-		Eq     *string
-		NotEq  *string
-		Gte    *string
-		NotGte *string
-		Gt     *string
-		NotGt  *string
-		Lte    *string
-		NotLte *string
-		Lt     *string
-		NotLt  *string
-		In     []string
-		NotIn  []string
+		Eq        *string
+		NotEq     *string
+		Gte       *string
+		NotGte    *string
+		Gt        *string
+		NotGt     *string
+		Lte       *string
+		NotLte    *string
+		Lt        *string
+		NotLt     *string
+		In        []string
+		NotIn     []string
+		IsNull    bool
+		IsNotNull bool
 	}
 	tests := []struct {
 		name    string
@@ -159,22 +161,34 @@ func TestDateFilter_GetGenericFilter(t *testing.T) {
 			fields:  fields{NotIn: []string{notADate}},
 			wantErr: true,
 		},
+		{
+			name:   "IsNull case",
+			fields: fields{IsNull: true},
+			want:   &GenericFilter{IsNull: true},
+		},
+		{
+			name:   "IsNotNull case",
+			fields: fields{IsNotNull: true},
+			want:   &GenericFilter{IsNotNull: true},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &DateFilter{
-				Eq:     tt.fields.Eq,
-				NotEq:  tt.fields.NotEq,
-				Gte:    tt.fields.Gte,
-				NotGte: tt.fields.NotGte,
-				Gt:     tt.fields.Gt,
-				NotGt:  tt.fields.NotGt,
-				Lte:    tt.fields.Lte,
-				NotLte: tt.fields.NotLte,
-				Lt:     tt.fields.Lt,
-				NotLt:  tt.fields.NotLt,
-				In:     tt.fields.In,
-				NotIn:  tt.fields.NotIn,
+				Eq:        tt.fields.Eq,
+				NotEq:     tt.fields.NotEq,
+				Gte:       tt.fields.Gte,
+				NotGte:    tt.fields.NotGte,
+				Gt:        tt.fields.Gt,
+				NotGt:     tt.fields.NotGt,
+				Lte:       tt.fields.Lte,
+				NotLte:    tt.fields.NotLte,
+				Lt:        tt.fields.Lt,
+				NotLt:     tt.fields.NotLt,
+				In:        tt.fields.In,
+				NotIn:     tt.fields.NotIn,
+				IsNull:    tt.fields.IsNull,
+				IsNotNull: tt.fields.IsNotNull,
 			}
 			got, err := d.GetGenericFilter()
 			if (err != nil) != tt.wantErr {

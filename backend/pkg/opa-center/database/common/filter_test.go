@@ -1,4 +1,4 @@
-// +build unit
+//+build unit
 
 package common
 
@@ -1930,6 +1930,36 @@ func Test_manageFilterRequest(t *testing.T) {
 			},
 			expectedIntermediateQuery: "WHERE field_1 NOT IN ($1)",
 			expectedArgs:              []driver.Value{"FAKE"},
+		},
+		// IS NULL
+		{
+			name: "is null false",
+			args: args{
+				v: &GenericFilter{IsNull: false},
+			},
+		},
+		{
+			name: "is null true",
+			args: args{
+				v: &GenericFilter{IsNull: true},
+			},
+			expectedIntermediateQuery: "WHERE field_1 IS NULL",
+			expectedArgs:              []driver.Value{},
+		},
+		// IS NOT NULL
+		{
+			name: "is not null false",
+			args: args{
+				v: &GenericFilter{IsNotNull: false},
+			},
+		},
+		{
+			name: "is not null true",
+			args: args{
+				v: &GenericFilter{IsNotNull: true},
+			},
+			expectedIntermediateQuery: "WHERE field_1 IS NOT NULL",
+			expectedArgs:              []driver.Value{},
 		},
 		// All at the same time
 		{

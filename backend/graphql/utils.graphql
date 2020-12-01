@@ -72,6 +72,14 @@ input StringFilter {
   Allow to test if value isn't in array
   """
   notIn: [String]
+  """
+  Allow to test if value is null
+  """
+  isNull: Boolean
+  """
+  Allow to test if value is not null
+  """
+  isNotNull: Boolean
 }
 
 """
@@ -126,6 +134,14 @@ input IntFilter {
   Allow to test if value isn't in array
   """
   notIn: [Int]
+  """
+  Allow to test if value is null
+  """
+  isNull: Boolean
+  """
+  Allow to test if value is not null
+  """
+  isNotNull: Boolean
 }
 
 """
@@ -194,4 +210,12 @@ input DateFilter {
   Allow to test if value isn't in array
   """
   notIn: [String]
+  """
+  Allow to test if value is null
+  """
+  isNull: Boolean
+  """
+  Allow to test if value is not null
+  """
+  isNotNull: Boolean
 }

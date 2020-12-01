@@ -7,8 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
-
+	"github.com/oxyno-zeta/opa-center/pkg/opa-center/common/errors"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/database/pagination"
 )
 
@@ -25,18 +24,18 @@ func FromIDRelay(relayID, prefix string) (string, error) {
 	idBb, err := base64.StdEncoding.DecodeString(relayID)
 	// Check error
 	if err != nil {
-		return "", err
+		return "", errors.NewInvalidInputErrorWithError(err)
 	}
 
 	idContent := string(idBb)
 	// Split
 	sp := strings.Split(idContent, ":")
 	if len(sp) != relayIDSplitSize {
-		return "", errors.New("format error on relay token")
+		return "", errors.NewInvalidInputError("format error on relay token")
 	}
 	// Check that first item of split is a good
 	if sp[0] != prefix {
-		return "", errors.New("invalid relay prefix")
+		return "", errors.NewInvalidInputError("invalid relay prefix")
 	}
 
 	return sp[1], nil
@@ -75,31 +74,31 @@ func GetPageInfo(startCursor, endCursor string, p *pagination.PageOutput) *PageI
 func GetPageInput(after *string, before *string, first *int, last *int) (*pagination.PageInput, error) {
 	// Check if all cursors are present together
 	if after != nil && before != nil {
-		return nil, errors.New("after and before can't be present together at the same time")
+		return nil, errors.NewInvalidInputError("after and before can't be present together at the same time")
 	}
 	// Check if first and last are present together
 	if first != nil && last != nil {
-		return nil, errors.New("first and last can't be present together at the same time")
+		return nil, errors.NewInvalidInputError("first and last can't be present together at the same time")
 	}
 	// Check before and last
 	if before != nil && last == nil {
-		return nil, errors.New("before must be used with last element")
+		return nil, errors.NewInvalidInputError("before must be used with last element")
 	}
 	// Check before and last case 2
 	if (before == nil || *before == "") && last != nil {
-		return nil, errors.New("last must be used with before element")
+		return nil, errors.NewInvalidInputError("last must be used with before element")
 	}
 	// Check first and after
 	if after != nil && first == nil {
-		return nil, errors.New("first must be used with after element")
+		return nil, errors.NewInvalidInputError("first must be used with after element")
 	}
 	// Check if last is positive
 	if last != nil && *last <= 0 {
-		return nil, errors.New("last must be > 0")
+		return nil, errors.NewInvalidInputError("last must be > 0")
 	}
 	// Check if first is positive
 	if first != nil && *first <= 0 {
-		return nil, errors.New("first must be > 0")
+		return nil, errors.NewInvalidInputError("first must be > 0")
 	}
 
 	// Create parginator input
@@ -141,7 +140,7 @@ func GetPageInput(after *string, before *string, first *int, last *int) (*pagina
 
 	// Check limit
 	if res.Limit > maxPageSize {
-		return nil, fmt.Errorf("first or last is too big, maximum is %d", maxPageSize)
+		return nil, errors.NewInvalidInputError(fmt.Sprintf("first or last is too big, maximum is %d", maxPageSize))
 	}
 
 	// Set default default limit
@@ -166,7 +165,7 @@ func parsePaginateCursor(cursorB64 string) (int, error) {
 	}
 	// Check if cursor is positive
 	if res < 0 {
-		return 0, errors.New("cursor pagination must be positive")
+		return 0, errors.NewInvalidInputError("cursor pagination must be positive")
 	}
 
 	return res, nil

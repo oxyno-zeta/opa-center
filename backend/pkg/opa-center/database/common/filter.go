@@ -293,6 +293,14 @@ func manageFilterRequest(dbCol string, v *GenericFilter, db *gorm.DB) (*gorm.DB,
 	if v.NotIn != nil {
 		dbRes = dbRes.Where(fmt.Sprintf("%s NOT IN (?)", dbCol), v.NotIn)
 	}
+	// Check is null case
+	if v.IsNull {
+		dbRes = dbRes.Where(fmt.Sprintf("%s IS NULL", dbCol))
+	}
+	// Check is not null case
+	if v.IsNotNull {
+		dbRes = dbRes.Where(fmt.Sprintf("%s IS NOT NULL", dbCol))
+	}
 
 	// Return
 	return dbRes, nil

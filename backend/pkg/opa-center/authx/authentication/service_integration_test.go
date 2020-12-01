@@ -84,7 +84,7 @@ func Test_authentication(t *testing.T) {
 			wantErr:            false,
 			expectedStatusCode: 302,
 			expectedHeaders: map[string]string{
-				"Location": "http://localhost:8088/auth/realms/integration/protocol/openid-connect/auth?client_id=client-with-secret&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Foidc%2Fcallback%3Frd%3Dhttp%253A%252F%252Fexample.com%252Ffake&response_type=code",
+				"Location": "http://localhost:8088/auth/realms/integration/protocol/openid-connect/auth?client_id=client-with-secret&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Foidc%2Fcallback&response_type=code&state=%3Ahttp%3A%2F%2Fexample.com%2Ffake",
 			},
 		},
 		{

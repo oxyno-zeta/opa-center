@@ -61,6 +61,21 @@ func (mr *MockLockMockRecorder) IsAlreadyTaken() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsAlreadyTaken", reflect.TypeOf((*MockLock)(nil).IsAlreadyTaken))
 }
 
+// IsReleased mocks base method
+func (m *MockLock) IsReleased() (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsReleased")
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsReleased indicates an expected call of IsReleased
+func (mr *MockLockMockRecorder) IsReleased() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsReleased", reflect.TypeOf((*MockLock)(nil).IsReleased))
+}
+
 // Release mocks base method
 func (m *MockLock) Release() error {
 	m.ctrl.T.Helper()

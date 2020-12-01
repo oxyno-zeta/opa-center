@@ -162,7 +162,7 @@ func manageGraphqlProjection(
 		}
 
 		// Field is found but type isn't supported
-		return fmt.Errorf("field %s must be a boolean", fieldType.Name)
+		return errors.NewInvalidInputError(fmt.Sprintf("field %s must be a boolean", fieldType.Name))
 	}
 
 	// Default

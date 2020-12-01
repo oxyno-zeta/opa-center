@@ -39,6 +39,7 @@ func NewInternalServer(logger log.Logger, cfgManager config.Manager, metricsCl m
 	}
 }
 
+// AddChecker allow to add a health checker.
 func (svr *InternalServer) AddChecker(chI *CheckerInput) {
 	svr.checkers = append(svr.checkers, &health.Config{
 		Name:     chI.Name,

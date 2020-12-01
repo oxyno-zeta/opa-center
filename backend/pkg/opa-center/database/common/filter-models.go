@@ -9,6 +9,8 @@ import (
 // Moreover, a tag containing the database field must be declared.
 // Example:
 // type Filter struct {
+//  AND []*Filter
+//  OR []*Filter
 // 	Field1 *GenericFilter `dbfield:"field_1"`
 // }
 // .
@@ -55,6 +57,10 @@ type GenericFilter struct {
 	In interface{}
 	// Allow to test if value isn't in array
 	NotIn interface{}
+	// Allow to test if value is null
+	IsNull bool
+	// Allow to test if value is not null
+	IsNotNull bool
 }
 
 // DateFilter is a structure that will handle filters for dates.
@@ -62,6 +68,8 @@ type GenericFilter struct {
 // Moreover, a tag containing the database field must be declared.
 // Example:
 // type Filter struct {
+//  AND []*Filter
+//  OR []*Filter
 // 	Field1 *DateFilter `dbfield:"field_1"`
 // }
 // .
@@ -90,6 +98,10 @@ type DateFilter struct {
 	In []string
 	// Allow to test if value isn't in array
 	NotIn []string
+	// Allow to test if value is null
+	IsNull bool
+	// Allow to test if value is not null
+	IsNotNull bool
 }
 
 // GenericFilterBuilder is an interface that must be implemented in order to work automatic filter.
@@ -248,6 +260,11 @@ func (d *DateFilter) GetGenericFilter() (*GenericFilter, error) {
 
 		res.NotIn = t
 	}
+
+	// Apply is null
+	res.IsNull = d.IsNull
+	// Apply is not null
+	res.IsNotNull = d.IsNotNull
 
 	return res, nil
 }
