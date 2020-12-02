@@ -130,5 +130,7 @@ type CredentialConfig struct {
 
 // CenterConfig OPA Center configuration.
 type CenterConfig struct {
-	BaseURL string `mapstructure:"baseURL" validate:"required,url"`
+	BaseURL                       string `mapstructure:"baseURL" validate:"required,url"`
+	CronRetentionProcess          string `mapstructure:"cronRetentionProcess" validate:"required"`
+	SkipRetentionProcessAtStartup bool   `mapstructure:"skipRetentionProcessAtStartup"`
 }

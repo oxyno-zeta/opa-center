@@ -100,7 +100,9 @@ func (s *service) Create(ctx context.Context, inp *models.CreateInput) (*models.
 
 	// Create partition object
 	obj := &models.Partition{
-		Name: inp.Name,
+		Name:                 inp.Name,
+		DecisionLogRetention: inp.DecisionLogRetention,
+		StatusDataRetention:  inp.StatusDataRetention,
 	}
 
 	// Search if it already exists

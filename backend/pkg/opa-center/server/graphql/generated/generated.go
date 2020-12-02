@@ -89,13 +89,15 @@ type ComplexityRoot struct {
 	}
 
 	Partition struct {
-		CreatedAt        func(childComplexity int) int
-		DecisionLogs     func(childComplexity int, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) int
-		ID               func(childComplexity int) int
-		Name             func(childComplexity int) int
-		OpaConfiguration func(childComplexity int) int
-		Statuses         func(childComplexity int, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) int
-		UpdatedAt        func(childComplexity int) int
+		CreatedAt            func(childComplexity int) int
+		DecisionLogRetention func(childComplexity int) int
+		DecisionLogs         func(childComplexity int, after *string, before *string, first *int, last *int, sort *models1.SortOrder, filter *models1.Filter) int
+		ID                   func(childComplexity int) int
+		Name                 func(childComplexity int) int
+		OpaConfiguration     func(childComplexity int) int
+		StatusDataRetention  func(childComplexity int) int
+		Statuses             func(childComplexity int, after *string, before *string, first *int, last *int, sort *models2.SortOrder, filter *models2.Filter) int
+		UpdatedAt            func(childComplexity int) int
 	}
 
 	PartitionConnection struct {
@@ -329,6 +331,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Partition.CreatedAt(childComplexity), true
 
+	case "Partition.decisionLogRetention":
+		if e.complexity.Partition.DecisionLogRetention == nil {
+			break
+		}
+
+		return e.complexity.Partition.DecisionLogRetention(childComplexity), true
+
 	case "Partition.decisionLogs":
 		if e.complexity.Partition.DecisionLogs == nil {
 			break
@@ -361,6 +370,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Partition.OpaConfiguration(childComplexity), true
+
+	case "Partition.statusDataRetention":
+		if e.complexity.Partition.StatusDataRetention == nil {
+			break
+		}
+
+		return e.complexity.Partition.StatusDataRetention(childComplexity), true
 
 	case "Partition.statuses":
 		if e.complexity.Partition.Statuses == nil {
@@ -628,6 +644,8 @@ input DecisionLogFilter {
   createdAt: String!
   updatedAt: String!
   name: String!
+  statusDataRetention: String
+  decisionLogRetention: String
   """
   Generate OPA Configuration file
   """
@@ -720,6 +738,8 @@ type PartitionEdge {
 
 input CreatePartitionInput {
   name: String!
+  statusDataRetention: String
+  decisionLogRetention: String
 }
 
 type CreatePartitionPayload {
@@ -730,12 +750,16 @@ input PartitionSortOrder {
   createdAt: SortOrderEnum
   updatedAt: SortOrderEnum
   name: SortOrderEnum
+  statusDataRetention: SortOrderEnum
+  decisionLogRetention: SortOrderEnum
 }
 
 input PartitionFilter {
   createdAt: DateFilter
   updatedAt: DateFilter
   name: StringFilter
+  statusDataRetention: StringFilter
+  decisionLogRetention: StringFilter
 }
 `, BuiltIn: false},
 	{Name: "graphql/schema.graphql", Input: `# Query
@@ -2150,6 +2174,70 @@ func (ec *executionContext) _Partition_name(ctx context.Context, field graphql.C
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Partition_statusDataRetention(ctx context.Context, field graphql.CollectedField, obj *models.Partition) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Partition",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StatusDataRetention, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Partition_decisionLogRetention(ctx context.Context, field graphql.CollectedField, obj *models.Partition) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Partition",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DecisionLogRetention, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Partition_opaConfiguration(ctx context.Context, field graphql.CollectedField, obj *models.Partition) (ret graphql.Marshaler) {
@@ -4064,6 +4152,22 @@ func (ec *executionContext) unmarshalInputCreatePartitionInput(ctx context.Conte
 			if err != nil {
 				return it, err
 			}
+		case "statusDataRetention":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDataRetention"))
+			it.StatusDataRetention, err = ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "decisionLogRetention":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("decisionLogRetention"))
+			it.DecisionLogRetention, err = ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -4460,6 +4564,22 @@ func (ec *executionContext) unmarshalInputPartitionFilter(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
+		case "statusDataRetention":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDataRetention"))
+			it.StatusDataRetention, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋdatabaseᚋcommonᚐGenericFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "decisionLogRetention":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("decisionLogRetention"))
+			it.DecisionLogRetention, err = ec.unmarshalOStringFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋdatabaseᚋcommonᚐGenericFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -4493,6 +4613,22 @@ func (ec *executionContext) unmarshalInputPartitionSortOrder(ctx context.Context
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			it.Name, err = ec.unmarshalOSortOrderEnum2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋdatabaseᚋcommonᚐSortOrderEnum(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "statusDataRetention":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDataRetention"))
+			it.StatusDataRetention, err = ec.unmarshalOSortOrderEnum2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋdatabaseᚋcommonᚐSortOrderEnum(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "decisionLogRetention":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("decisionLogRetention"))
+			it.DecisionLogRetention, err = ec.unmarshalOSortOrderEnum2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋdatabaseᚋcommonᚐSortOrderEnum(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4990,6 +5126,10 @@ func (ec *executionContext) _Partition(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "statusDataRetention":
+			out.Values[i] = ec._Partition_statusDataRetention(ctx, field, obj)
+		case "decisionLogRetention":
+			out.Values[i] = ec._Partition_decisionLogRetention(ctx, field, obj)
 		case "opaConfiguration":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {

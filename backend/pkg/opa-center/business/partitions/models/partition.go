@@ -6,5 +6,7 @@ import (
 
 type Partition struct {
 	database.Base
-	Name string `gorm:"unique_index"`
+	Name                 string `gorm:"unique_index"`
+	StatusDataRetention  string
+	DecisionLogRetention string
 }

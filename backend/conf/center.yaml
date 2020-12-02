@@ -1,2 +1,4 @@
 center:
   baseUrl: http://localhost:8080
+  cronRetentionProcess: "*/5 * * * *"
+  skipRetentionProcessAtStartup: false

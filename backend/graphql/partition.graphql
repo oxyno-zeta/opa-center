@@ -3,6 +3,8 @@ type Partition {
   createdAt: String!
   updatedAt: String!
   name: String!
+  statusDataRetention: String
+  decisionLogRetention: String
   """
   Generate OPA Configuration file
   """
@@ -95,6 +97,8 @@ type PartitionEdge {
 
 input CreatePartitionInput {
   name: String!
+  statusDataRetention: String
+  decisionLogRetention: String
 }
 
 type CreatePartitionPayload {
@@ -105,10 +109,14 @@ input PartitionSortOrder {
   createdAt: SortOrderEnum
   updatedAt: SortOrderEnum
   name: SortOrderEnum
+  statusDataRetention: SortOrderEnum
+  decisionLogRetention: SortOrderEnum
 }
 
 input PartitionFilter {
   createdAt: DateFilter
   updatedAt: DateFilter
   name: StringFilter
+  statusDataRetention: StringFilter
+  decisionLogRetention: StringFilter
 }
