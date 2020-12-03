@@ -39,9 +39,17 @@ func (s *Services) MigrateDB() error {
 	return nil
 }
 
+func (s *Services) Initialize() error {
+	return s.PartitionsSvc.Initialize()
+}
+
+func (s *Services) Reload() error {
+	return s.PartitionsSvc.Reload()
+}
+
 func NewServices(systemLogger log.Logger, db database.DB, authSvc authorization.Service, cfgManager config.Manager) (*Services, error) {
 	// Create partitions service
-	pSvc, err := partitions.NewService(db, authSvc, cfgManager)
+	pSvc, err := partitions.NewService(db, authSvc, cfgManager, systemLogger)
 	// Check error
 	if err != nil {
 		return nil, err
@@ -50,6 +58,8 @@ func NewServices(systemLogger log.Logger, db database.DB, authSvc authorization.
 	dlSvc := decisionlogs.NewService(db, authSvc, pSvc)
 	// Create status service
 	stSvc := statuses.NewService(db, authSvc, pSvc)
+	// Add services to partitions service
+	pSvc.AddServices(dlSvc, stSvc)
 
 	return &Services{
 		systemLogger:    systemLogger,

@@ -116,6 +116,19 @@ func main() {
 		logger.WithError(err).Fatal(err)
 	}
 
+	// Initialize services
+	err = busServices.Initialize()
+	if err != nil {
+		logger.WithError(err).Fatal(err)
+	}
+	// Add configuration reload hook
+	cfgManager.AddOnChangeHook(func() {
+		err = busServices.Reload()
+		if err != nil {
+			logger.WithError(err).Fatal(err)
+		}
+	})
+
 	// Create authentication service
 	authenticationSvc := authentication.NewService(cfgManager)
 

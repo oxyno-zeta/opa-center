@@ -2,6 +2,7 @@ package statuses
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/authx/authorization"
@@ -29,6 +30,8 @@ type Service interface {
 	) ([]*models.Status, *pagination.PageOutput, error)
 	// Find by id
 	FindByID(ctx context.Context, id string, projection *models.Projection) (*models.Status, error)
+	// Manage retention data
+	ManageRetention(logger log.Logger, retentionDuration time.Duration, partitionID string) error
 }
 
 type PartitionService interface {

@@ -2,6 +2,7 @@ package decisionlogs
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/authx/authorization"
@@ -29,6 +30,8 @@ type Service interface {
 	) ([]*models.DecisionLog, *pagination.PageOutput, error)
 	// Find by id or decision id
 	FindByIDOrDecisionID(ctx context.Context, id, did *string, projection *models.Projection) (*models.DecisionLog, error)
+	// Manage retention data
+	ManageRetention(logger log.Logger, retentionDuration time.Duration, partitionID string) error
 }
 
 type PartitionService interface {

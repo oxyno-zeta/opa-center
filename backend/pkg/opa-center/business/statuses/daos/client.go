@@ -21,6 +21,8 @@ type Dao interface {
 		filter *models.Filter,
 		projection *models.Projection,
 	) ([]*models.Status, *pagination.PageOutput, error)
+	// Delete permanently with filter
+	Delete(filter *models.Filter) error
 }
 
 func NewDao(db database.DB) Dao {

@@ -32,6 +32,20 @@ func (s *service) MigrateDB(systemLogger log.Logger) error {
 	return s.dao.MigrateDB()
 }
 
+func (s *service) ManageRetention(logger log.Logger, retentionDuration time.Duration, partitionID string) error {
+	// Get now date
+	now := time.Now()
+	// Remove duration
+	oldDate := now.Add(-retentionDuration)
+	// Format date
+	oldDateS := oldDate.Format(time.RFC3339)
+
+	return s.dao.Delete(&models.Filter{
+		CreatedAt:   &common.DateFilter{Lt: &oldDateS},
+		PartitionID: &common.GenericFilter{Eq: partitionID},
+	})
+}
+
 func (s *service) FindByIDOrDecisionID(ctx context.Context, id, did *string, projection *models.Projection) (*models.DecisionLog, error) {
 	// Check if we are in the find by id case
 	if id != nil {

@@ -2,6 +2,7 @@ package partitions
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/authx/authorization"
@@ -16,6 +17,12 @@ import (
 var errInvalidNameTemplate = "name must match regex %s"
 
 type Service interface {
+	// Initialize service
+	Initialize() error
+	// Reload service
+	Reload() error
+	// Add services
+	AddServices(decisionLogsSvc, statusesSvc RetentionService)
 	// Migrate database
 	MigrateDB(systemLogger log.Logger) error
 	// Get data paginated
@@ -36,7 +43,11 @@ type Service interface {
 	GenerateOPAConfiguration(ctx context.Context, id string) (string, error)
 }
 
-func NewService(db database.DB, authorizationSvc authorization.Service, cfgManager config.Manager) (Service, error) {
+type RetentionService interface {
+	ManageRetention(logger log.Logger, retentionDuration time.Duration, partitionID string) error
+}
+
+func NewService(db database.DB, authorizationSvc authorization.Service, cfgManager config.Manager, logger log.Logger) (Service, error) {
 	// Create dao
 	dao := daos.NewDao(db)
 	// Create template
@@ -52,5 +63,6 @@ func NewService(db database.DB, authorizationSvc authorization.Service, cfgManag
 		authorizationSvc: authorizationSvc,
 		cfgManager:       cfgManager,
 		opaCfgTemplate:   opaCfgTemplate,
+		logger:           logger,
 	}, nil
 }

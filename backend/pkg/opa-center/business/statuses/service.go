@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -29,6 +30,20 @@ func (s *service) MigrateDB(systemLogger log.Logger) error {
 	systemLogger.Debug("Migrate database for Status")
 
 	return s.dao.MigrateDB()
+}
+
+func (s *service) ManageRetention(logger log.Logger, retentionDuration time.Duration, partitionID string) error {
+	// Get now date
+	now := time.Now()
+	// Remove duration
+	oldDate := now.Add(-retentionDuration)
+	// Format date
+	oldDateS := oldDate.Format(time.RFC3339)
+
+	return s.dao.Delete(&models.Filter{
+		CreatedAt:   &common.DateFilter{Lt: &oldDateS},
+		PartitionID: &common.GenericFilter{Eq: partitionID},
+	})
 }
 
 func (s *service) FindByID(ctx context.Context, id string, projection *models.Projection) (*models.Status, error) {

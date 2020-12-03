@@ -24,6 +24,19 @@ func (s *service) MigrateDB() error {
 	return err
 }
 
+func (s *service) Delete(filter *models.Filter) error {
+	// Get gorm database
+	gdb := s.db.GetGormDB()
+	// Apply filter
+	db, err := common.ManageFilter(filter, gdb)
+	// Check error
+	if err != nil {
+		return err
+	}
+
+	return db.Unscoped().Delete(&models.Status{}).Error
+}
+
 func (s *service) FindByID(id string, projection *models.Projection) (*models.Status, error) {
 	// Get gorm database
 	gdb := s.db.GetGormDB()

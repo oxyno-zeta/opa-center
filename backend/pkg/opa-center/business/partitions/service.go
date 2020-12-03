@@ -7,6 +7,7 @@ import (
 	"path"
 	"regexp"
 	"text/template"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/authx/authorization"
@@ -16,6 +17,7 @@ import (
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/config"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/database/pagination"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/log"
+	"github.com/reugn/go-quartz/quartz"
 )
 
 const mainAuthorizationPrefix = "partitions"
@@ -23,16 +25,82 @@ const mainAuthorizationPrefix = "partitions"
 var validNameRegex = regexp.MustCompile("^[^-][a-zA-Z0-9-]+[^-]$")
 
 type service struct {
-	dao              daos.Dao
-	validator        *validator.Validate
-	authorizationSvc authorization.Service
-	cfgManager       config.Manager
-	opaCfgTemplate   *template.Template
+	dao                daos.Dao
+	validator          *validator.Validate
+	authorizationSvc   authorization.Service
+	cfgManager         config.Manager
+	opaCfgTemplate     *template.Template
+	retentionScheduler quartz.Scheduler
+	decisionLogsSvc    RetentionService
+	statusesSvc        RetentionService
+	logger             log.Logger
 }
 
 type opaCfgData struct {
 	Partition  *models.Partition
 	ServiceURL string
+}
+
+func (s *service) AddServices(decisionLogsSvc, statusesSvc RetentionService) {
+	s.decisionLogsSvc = decisionLogsSvc
+	s.statusesSvc = statusesSvc
+}
+
+func (s *service) Initialize() error {
+	return s.initializeCron(true)
+}
+
+func (s *service) initializeCron(isStartup bool) error {
+	// Get configuration
+	cfg := s.cfgManager.GetConfig().Center
+	// Create scheduler
+	sched := quartz.NewStdScheduler()
+
+	// Start scheduler
+	sched.Start()
+
+	// Create cron trigger
+	cronTrigger, err := quartz.NewCronTrigger(cfg.CronRetentionProcess)
+	// Check error
+	if err != nil {
+		return err
+	}
+
+	// Create task
+	task := &RetentionCleanTask{s: s, logger: s.logger.WithField("task", "retention-clean-process")}
+
+	// Add task
+	err = sched.ScheduleJob(task, cronTrigger)
+	// Check error
+	if err != nil {
+		return err
+	}
+
+	// Check if a startup run is asked
+	if isStartup && !cfg.SkipRetentionProcessAtStartup {
+		// Create run one trigger
+		runOnceTrigger := quartz.NewRunOnceTrigger(time.Second)
+
+		// Add task
+		err = sched.ScheduleJob(task, runOnceTrigger)
+		// Check error
+		if err != nil {
+			return err
+		}
+	}
+
+	// Store scheduler
+	s.retentionScheduler = sched
+
+	return nil
+}
+
+func (s *service) Reload() error {
+	// Stop scheduler
+	s.retentionScheduler.Stop()
+
+	// Restart initialize cron
+	return s.initializeCron(false)
 }
 
 func (s *service) MigrateDB(systemLogger log.Logger) error {
