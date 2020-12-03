@@ -3,7 +3,7 @@ module github.com/oxyno-zeta/opa-center
 go 1.13
 
 require (
-	cirello.io/pglock v1.8.0
+	cirello.io/pglock v1.8.1-0.20201203164913-852ca5e10622
 	github.com/99designs/gqlgen v0.13.0
 	github.com/99designs/gqlgen-contrib v0.1.1-0.20200601100547-7a955d321bbd
 	github.com/DATA-DOG/go-sqlmock v1.5.0
