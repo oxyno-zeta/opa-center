@@ -22,6 +22,8 @@ input StatusSortOrder {
 }
 
 input StatusFilter {
+  AND: [StatusFilter]
+  OR: [StatusFilter]
   createdAt: DateFilter
   updatedAt: DateFilter
 }

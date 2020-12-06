@@ -11,6 +11,8 @@ type SortOrder struct {
 }
 
 type Filter struct {
+	AND         []*Filter
+	OR          []*Filter
 	CreatedAt   *common.DateFilter    `dbfield:"created_at"`
 	UpdatedAt   *common.DateFilter    `dbfield:"updated_at"`
 	DecisionID  *common.GenericFilter `dbfield:"decision_id"`

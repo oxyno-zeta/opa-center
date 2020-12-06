@@ -29,6 +29,8 @@ input DecisionLogSortOrder {
 }
 
 input DecisionLogFilter {
+  AND: [DecisionLogFilter]
+  OR: [DecisionLogFilter]
   createdAt: DateFilter
   updatedAt: DateFilter
   decisionId: StringFilter
@@ -152,6 +154,8 @@ input PartitionSortOrder {
 }
 
 input PartitionFilter {
+  AND: [PartitionFilter]
+  OR: [PartitionFilter]
   createdAt: DateFilter
   updatedAt: DateFilter
   name: StringFilter
@@ -242,6 +246,8 @@ input StatusSortOrder {
 }
 
 input StatusFilter {
+  AND: [StatusFilter]
+  OR: [StatusFilter]
   createdAt: DateFilter
   updatedAt: DateFilter
 }

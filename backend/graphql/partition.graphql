@@ -114,6 +114,8 @@ input PartitionSortOrder {
 }
 
 input PartitionFilter {
+  AND: [PartitionFilter]
+  OR: [PartitionFilter]
   createdAt: DateFilter
   updatedAt: DateFilter
   name: StringFilter

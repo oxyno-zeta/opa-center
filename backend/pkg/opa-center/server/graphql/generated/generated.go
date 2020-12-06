@@ -631,6 +631,8 @@ input DecisionLogSortOrder {
 }
 
 input DecisionLogFilter {
+  AND: [DecisionLogFilter]
+  OR: [DecisionLogFilter]
   createdAt: DateFilter
   updatedAt: DateFilter
   decisionId: StringFilter
@@ -755,6 +757,8 @@ input PartitionSortOrder {
 }
 
 input PartitionFilter {
+  AND: [PartitionFilter]
+  OR: [PartitionFilter]
   createdAt: DateFilter
   updatedAt: DateFilter
   name: StringFilter
@@ -847,6 +851,8 @@ input StatusSortOrder {
 }
 
 input StatusFilter {
+  AND: [StatusFilter]
+  OR: [StatusFilter]
   createdAt: DateFilter
   updatedAt: DateFilter
 }
@@ -4304,6 +4310,22 @@ func (ec *executionContext) unmarshalInputDecisionLogFilter(ctx context.Context,
 
 	for k, v := range asMap {
 		switch k {
+		case "AND":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AND"))
+			it.AND, err = ec.unmarshalODecisionLogFilter2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "OR":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("OR"))
+			it.OR, err = ec.unmarshalODecisionLogFilter2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdAt":
 			var err error
 
@@ -4540,6 +4562,22 @@ func (ec *executionContext) unmarshalInputPartitionFilter(ctx context.Context, o
 
 	for k, v := range asMap {
 		switch k {
+		case "AND":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AND"))
+			it.AND, err = ec.unmarshalOPartitionFilter2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "OR":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("OR"))
+			it.OR, err = ec.unmarshalOPartitionFilter2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdAt":
 			var err error
 
@@ -4644,6 +4682,22 @@ func (ec *executionContext) unmarshalInputStatusFilter(ctx context.Context, obj 
 
 	for k, v := range asMap {
 		switch k {
+		case "AND":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AND"))
+			it.AND, err = ec.unmarshalOStatusFilter2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "OR":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("OR"))
+			it.OR, err = ec.unmarshalOStatusFilter2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "createdAt":
 			var err error
 
@@ -6098,6 +6152,30 @@ func (ec *executionContext) marshalODecisionLogEdge2ᚖgithubᚗcomᚋoxynoᚑze
 	return ec._DecisionLogEdge(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalODecisionLogFilter2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐFilter(ctx context.Context, v interface{}) ([]*models1.Filter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*models1.Filter, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalODecisionLogFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐFilter(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 func (ec *executionContext) unmarshalODecisionLogFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐFilter(ctx context.Context, v interface{}) (*models1.Filter, error) {
 	if v == nil {
 		return nil, nil
@@ -6241,6 +6319,30 @@ func (ec *executionContext) marshalOPartitionEdge2ᚖgithubᚗcomᚋoxynoᚑzeta
 	return ec._PartitionEdge(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOPartitionFilter2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐFilter(ctx context.Context, v interface{}) ([]*models.Filter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*models.Filter, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOPartitionFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐFilter(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 func (ec *executionContext) unmarshalOPartitionFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐFilter(ctx context.Context, v interface{}) (*models.Filter, error) {
 	if v == nil {
 		return nil, nil
@@ -6332,6 +6434,30 @@ func (ec *executionContext) marshalOStatusEdge2ᚖgithubᚗcomᚋoxynoᚑzetaᚋ
 		return graphql.Null
 	}
 	return ec._StatusEdge(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOStatusFilter2ᚕᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐFilter(ctx context.Context, v interface{}) ([]*models2.Filter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*models2.Filter, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOStatusFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐFilter(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 func (ec *executionContext) unmarshalOStatusFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋstatusesᚋmodelsᚐFilter(ctx context.Context, v interface{}) (*models2.Filter, error) {

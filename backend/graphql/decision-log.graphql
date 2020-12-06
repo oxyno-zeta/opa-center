@@ -29,6 +29,8 @@ input DecisionLogSortOrder {
 }
 
 input DecisionLogFilter {
+  AND: [DecisionLogFilter]
+  OR: [DecisionLogFilter]
   createdAt: DateFilter
   updatedAt: DateFilter
   decisionId: StringFilter
