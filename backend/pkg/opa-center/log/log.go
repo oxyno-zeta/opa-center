@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 
 	gormlogger "gorm.io/gorm/logger"
@@ -46,6 +47,7 @@ type Logger interface {
 	GetTracingLogger() TracingLogger
 	GetLockDistributorLogger() LockDistributorLogger
 	GetGormLogger() gormlogger.Interface
+	GetCronLogger() cron.Logger
 }
 
 type TracingLogger interface {

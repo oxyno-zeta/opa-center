@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/robfig/cron/v3"
 	logrus "github.com/sirupsen/logrus"
 	gormlogger "gorm.io/gorm/logger"
 )
@@ -18,6 +19,12 @@ type loggerIns struct {
 // This is dirty pkg/errors.
 type stackTracer interface {
 	StackTrace() errors.StackTrace
+}
+
+func (ll *loggerIns) GetCronLogger() cron.Logger {
+	return &cronLogger{
+		logger: ll.WithField("from", "cron"),
+	}
 }
 
 func (ll *loggerIns) GetGormLogger() gormlogger.Interface {

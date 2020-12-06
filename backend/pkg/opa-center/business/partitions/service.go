@@ -17,7 +17,7 @@ import (
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/config"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/database/pagination"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/log"
-	"github.com/reugn/go-quartz/quartz"
+	"github.com/robfig/cron/v3"
 )
 
 const mainAuthorizationPrefix = "partitions"
@@ -30,7 +30,7 @@ type service struct {
 	authorizationSvc   authorization.Service
 	cfgManager         config.Manager
 	opaCfgTemplate     *template.Template
-	retentionScheduler quartz.Scheduler
+	retentionScheduler *cron.Cron
 	decisionLogsSvc    RetentionService
 	statusesSvc        RetentionService
 	logger             log.Logger
@@ -53,44 +53,31 @@ func (s *service) Initialize() error {
 func (s *service) initializeCron(isStartup bool) error {
 	// Get configuration
 	cfg := s.cfgManager.GetConfig().Center
-	// Create scheduler
-	sched := quartz.NewStdScheduler()
 
-	// Start scheduler
-	sched.Start()
-
-	// Create cron trigger
-	cronTrigger, err := quartz.NewCronTrigger(cfg.CronRetentionProcess)
-	// Check error
-	if err != nil {
-		return err
-	}
-
+	// Create new cron
+	c := cron.New(
+		cron.WithLogger(s.logger.GetCronLogger()),
+	)
 	// Create task
 	task := &RetentionCleanTask{s: s, logger: s.logger.WithField("task", "retention-clean-process")}
-
 	// Add task
-	err = sched.ScheduleJob(task, cronTrigger)
+	_, err := c.AddJob(cfg.CronRetentionProcess, task)
 	// Check error
 	if err != nil {
 		return err
 	}
+
+	// Start cron
+	c.Start()
 
 	// Check if a startup run is asked
 	if isStartup && !cfg.SkipRetentionProcessAtStartup {
-		// Create run one trigger
-		runOnceTrigger := quartz.NewRunOnceTrigger(time.Second)
-
-		// Add task
-		err = sched.ScheduleJob(task, runOnceTrigger)
-		// Check error
-		if err != nil {
-			return err
-		}
+		// Start go routine to start task
+		go task.Run()
 	}
 
 	// Store scheduler
-	s.retentionScheduler = sched
+	s.retentionScheduler = c
 
 	return nil
 }

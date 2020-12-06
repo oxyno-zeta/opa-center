@@ -1,4 +1,4 @@
 center:
   baseUrl: http://localhost:8080
-  cronRetentionProcess: "0/5 * * * * *"
+  cronRetentionProcess: "@every 30s"
   skipRetentionProcessAtStartup: false

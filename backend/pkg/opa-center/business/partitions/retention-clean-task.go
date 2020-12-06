@@ -28,7 +28,7 @@ func (r *RetentionCleanTask) buildCurrentLogger() log.Logger {
 	return r.logger.WithField("task-id", time.Now().Unix())
 }
 
-func (r *RetentionCleanTask) Execute() {
+func (r *RetentionCleanTask) Run() {
 	// Build logger
 	logger := r.buildCurrentLogger()
 	// Check if another run isn't already in progress
