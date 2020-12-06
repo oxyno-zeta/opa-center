@@ -9,7 +9,7 @@ import (
 )
 
 // Limit of element search.
-const ListLimit = 2
+const ListLimit = 10
 
 type RetentionCleanTask struct {
 	s          *service
