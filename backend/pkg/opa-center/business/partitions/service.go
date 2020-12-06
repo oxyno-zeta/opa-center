@@ -142,6 +142,26 @@ func (s *service) validateCreateInput(inp *models.CreateInput) error {
 		return errors.NewInvalidInputError(fmt.Sprintf(errInvalidNameTemplate, validNameRegex.String()))
 	}
 
+	// Validate decision log retention duration
+	if inp.DecisionLogRetention != "" {
+		// Try to parse duration
+		_, err := time.ParseDuration(inp.DecisionLogRetention)
+		// Check error
+		if err != nil {
+			return errors.NewInvalidInputErrorWithError(err)
+		}
+	}
+
+	// Validate status retention duration
+	if inp.StatusDataRetention != "" {
+		// Try to parse duration
+		_, err := time.ParseDuration(inp.StatusDataRetention)
+		// Check error
+		if err != nil {
+			return errors.NewInvalidInputErrorWithError(err)
+		}
+	}
+
 	return nil
 }
 
