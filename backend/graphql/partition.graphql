@@ -101,7 +101,13 @@ input CreatePartitionInput {
   decisionLogRetention: String
 }
 
-type CreatePartitionPayload {
+input UpdatePartitionInput {
+  id: ID!
+  statusDataRetention: String
+  decisionLogRetention: String
+}
+
+type GenericPartitionPayload {
   partition: Partition
 }
 

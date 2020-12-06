@@ -35,6 +35,8 @@ type Service interface {
 	) ([]*models.Partition, *pagination.PageOutput, error)
 	// Create partition
 	Create(ctx context.Context, inp *models.CreateInput) (*models.Partition, error)
+	// Update partition
+	Update(ctx context.Context, inp *models.UpdateInput) (*models.Partition, error)
 	// Find by id used internally only
 	UnsecureFindByID(id string) (*models.Partition, error)
 	// Find by id

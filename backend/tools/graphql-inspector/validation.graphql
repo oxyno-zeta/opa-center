@@ -141,7 +141,13 @@ input CreatePartitionInput {
   decisionLogRetention: String
 }
 
-type CreatePartitionPayload {
+input UpdatePartitionInput {
+  id: ID!
+  statusDataRetention: String
+  decisionLogRetention: String
+}
+
+type GenericPartitionPayload {
   partition: Partition
 }
 
@@ -220,7 +226,14 @@ type Query {
 
 # Mutation
 type Mutation {
-  createPartition(input: CreatePartitionInput!): CreatePartitionPayload
+  """
+  Create Partition
+  """
+  createPartition(input: CreatePartitionInput!): GenericPartitionPayload
+  """
+  Update Partition
+  """
+  updatePartition(input: UpdatePartitionInput!): GenericPartitionPayload
 }
 type Status {
   id: ID!

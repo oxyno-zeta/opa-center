@@ -3,15 +3,11 @@
 package model
 
 import (
-	models1 "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/decisionlogs/models"
-	"github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models"
+	"github.com/oxyno-zeta/opa-center/pkg/opa-center/business/decisionlogs/models"
+	models1 "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models"
 	models2 "github.com/oxyno-zeta/opa-center/pkg/opa-center/business/statuses/models"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/server/graphql/utils"
 )
-
-type CreatePartitionPayload struct {
-	Partition *models.Partition `json:"partition"`
-}
 
 type DecisionLogConnection struct {
 	Edges    []*DecisionLogEdge `json:"edges"`
@@ -19,8 +15,12 @@ type DecisionLogConnection struct {
 }
 
 type DecisionLogEdge struct {
-	Cursor string               `json:"cursor"`
-	Node   *models1.DecisionLog `json:"node"`
+	Cursor string              `json:"cursor"`
+	Node   *models.DecisionLog `json:"node"`
+}
+
+type GenericPartitionPayload struct {
+	Partition *models1.Partition `json:"partition"`
 }
 
 type PartitionConnection struct {
@@ -29,8 +29,8 @@ type PartitionConnection struct {
 }
 
 type PartitionEdge struct {
-	Cursor string            `json:"cursor"`
-	Node   *models.Partition `json:"node"`
+	Cursor string             `json:"cursor"`
+	Node   *models1.Partition `json:"node"`
 }
 
 type StatusConnection struct {

@@ -205,6 +205,98 @@ func (s *service) Create(ctx context.Context, inp *models.CreateInput) (*models.
 	return res, nil
 }
 
+func (s *service) validateUpdateInput(inp *models.UpdateInput) error {
+	// Validate input
+	err := s.validator.Struct(inp)
+	if err != nil {
+		return err
+	}
+
+	// Validate decision log retention duration
+	if inp.DecisionLogRetention != nil && *inp.DecisionLogRetention != "" {
+		// Try to parse duration
+		_, err := time.ParseDuration(*inp.DecisionLogRetention)
+		// Check error
+		if err != nil {
+			return errors.NewInvalidInputErrorWithError(err)
+		}
+	}
+
+	// Validate status retention duration
+	if inp.StatusDataRetention != nil && *inp.StatusDataRetention != "" {
+		// Try to parse duration
+		_, err := time.ParseDuration(*inp.StatusDataRetention)
+		// Check error
+		if err != nil {
+			return errors.NewInvalidInputErrorWithError(err)
+		}
+	}
+
+	return nil
+}
+
+func (s *service) Update(ctx context.Context, inp *models.UpdateInput) (*models.Partition, error) {
+	// Validate input
+	err := s.validateUpdateInput(inp)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+
+	// Find partition
+	res, err := s.dao.FindByID(inp.ID, nil)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+	// Check if exists
+	if res == nil {
+		return nil, errors.NewNotFoundError("partition not found")
+	}
+
+	// Check authorization
+	err = s.authorizationSvc.CheckAuthorized(
+		ctx,
+		fmt.Sprintf("%s:Update", mainAuthorizationPrefix),
+		fmt.Sprintf("%s:%s", mainAuthorizationPrefix, res.Name),
+	)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+
+	// Update only necessary fields
+
+	// Store if something changed
+	edited := false
+
+	// Check if decision log retention is set
+	if inp.DecisionLogRetention != nil {
+		res.DecisionLogRetention = *inp.DecisionLogRetention
+		edited = true
+	}
+
+	// Check if status retention is set
+	if inp.StatusDataRetention != nil {
+		res.StatusDataRetention = *inp.StatusDataRetention
+		edited = true
+	}
+
+	// Check if nothing was edited
+	if !edited {
+		return res, nil
+	}
+
+	// Save
+	res, err = s.dao.Save(res)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (s *service) UnsecureFindByID(id string) (*models.Partition, error) {
 	return s.dao.FindByID(id, nil)
 }

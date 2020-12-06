@@ -51,10 +51,6 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	CreatePartitionPayload struct {
-		Partition func(childComplexity int) int
-	}
-
 	DecisionLog struct {
 		CreatedAt       func(childComplexity int) int
 		DecisionID      func(childComplexity int) int
@@ -77,8 +73,13 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	GenericPartitionPayload struct {
+		Partition func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreatePartition func(childComplexity int, input models.CreateInput) int
+		UpdatePartition func(childComplexity int, input models.UpdateInput) int
 	}
 
 	PageInfo struct {
@@ -146,7 +147,8 @@ type DecisionLogResolver interface {
 	Partition(ctx context.Context, obj *models1.DecisionLog) (*models.Partition, error)
 }
 type MutationResolver interface {
-	CreatePartition(ctx context.Context, input models.CreateInput) (*model.CreatePartitionPayload, error)
+	CreatePartition(ctx context.Context, input models.CreateInput) (*model.GenericPartitionPayload, error)
+	UpdatePartition(ctx context.Context, input models.UpdateInput) (*model.GenericPartitionPayload, error)
 }
 type PartitionResolver interface {
 	ID(ctx context.Context, obj *models.Partition) (string, error)
@@ -185,13 +187,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
-
-	case "CreatePartitionPayload.partition":
-		if e.complexity.CreatePartitionPayload.Partition == nil {
-			break
-		}
-
-		return e.complexity.CreatePartitionPayload.Partition(childComplexity), true
 
 	case "DecisionLog.createdAt":
 		if e.complexity.DecisionLog.CreatedAt == nil {
@@ -284,6 +279,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DecisionLogEdge.Node(childComplexity), true
 
+	case "GenericPartitionPayload.partition":
+		if e.complexity.GenericPartitionPayload.Partition == nil {
+			break
+		}
+
+		return e.complexity.GenericPartitionPayload.Partition(childComplexity), true
+
 	case "Mutation.createPartition":
 		if e.complexity.Mutation.CreatePartition == nil {
 			break
@@ -295,6 +297,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreatePartition(childComplexity, args["input"].(models.CreateInput)), true
+
+	case "Mutation.updatePartition":
+		if e.complexity.Mutation.UpdatePartition == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updatePartition_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdatePartition(childComplexity, args["input"].(models.UpdateInput)), true
 
 	case "PageInfo.endCursor":
 		if e.complexity.PageInfo.EndCursor == nil {
@@ -744,7 +758,13 @@ input CreatePartitionInput {
   decisionLogRetention: String
 }
 
-type CreatePartitionPayload {
+input UpdatePartitionInput {
+  id: ID!
+  statusDataRetention: String
+  decisionLogRetention: String
+}
+
+type GenericPartitionPayload {
   partition: Partition
 }
 
@@ -824,7 +844,14 @@ type Query {
 
 # Mutation
 type Mutation {
-  createPartition(input: CreatePartitionInput!): CreatePartitionPayload
+  """
+  Create Partition
+  """
+  createPartition(input: CreatePartitionInput!): GenericPartitionPayload
+  """
+  Update Partition
+  """
+  updatePartition(input: UpdatePartitionInput!): GenericPartitionPayload
 }
 `, BuiltIn: false},
 	{Name: "graphql/status.graphql", Input: `type Status {
@@ -1093,6 +1120,21 @@ func (ec *executionContext) field_Mutation_createPartition_args(ctx context.Cont
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreatePartitionInput2githubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐCreateInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updatePartition_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 models.UpdateInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUpdatePartitionInput2githubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1387,38 +1429,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _CreatePartitionPayload_partition(ctx context.Context, field graphql.CollectedField, obj *model.CreatePartitionPayload) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "CreatePartitionPayload",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Partition, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*models.Partition)
-	fc.Result = res
-	return ec.marshalOPartition2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐPartition(ctx, field.Selections, res)
-}
 
 func (ec *executionContext) _DecisionLog_id(ctx context.Context, field graphql.CollectedField, obj *models1.DecisionLog) (ret graphql.Marshaler) {
 	defer func() {
@@ -1869,6 +1879,38 @@ func (ec *executionContext) _DecisionLogEdge_node(ctx context.Context, field gra
 	return ec.marshalODecisionLog2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋdecisionlogsᚋmodelsᚐDecisionLog(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _GenericPartitionPayload_partition(ctx context.Context, field graphql.CollectedField, obj *model.GenericPartitionPayload) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "GenericPartitionPayload",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Partition, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Partition)
+	fc.Result = res
+	return ec.marshalOPartition2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐPartition(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createPartition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1903,9 +1945,48 @@ func (ec *executionContext) _Mutation_createPartition(ctx context.Context, field
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.CreatePartitionPayload)
+	res := resTmp.(*model.GenericPartitionPayload)
 	fc.Result = res
-	return ec.marshalOCreatePartitionPayload2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐCreatePartitionPayload(ctx, field.Selections, res)
+	return ec.marshalOGenericPartitionPayload2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐGenericPartitionPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updatePartition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updatePartition_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdatePartition(rctx, args["input"].(models.UpdateInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.GenericPartitionPayload)
+	fc.Result = res
+	return ec.marshalOGenericPartitionPayload2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐGenericPartitionPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PageInfo_hasNextPage(ctx context.Context, field graphql.CollectedField, obj *utils.PageInfo) (ret graphql.Marshaler) {
@@ -4856,6 +4937,42 @@ func (ec *executionContext) unmarshalInputStringFilter(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdatePartitionInput(ctx context.Context, obj interface{}) (models.UpdateInput, error) {
+	var it models.UpdateInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "statusDataRetention":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statusDataRetention"))
+			it.StatusDataRetention, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "decisionLogRetention":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("decisionLogRetention"))
+			it.DecisionLogRetention, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4863,30 +4980,6 @@ func (ec *executionContext) unmarshalInputStringFilter(ctx context.Context, obj 
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
-
-var createPartitionPayloadImplementors = []string{"CreatePartitionPayload"}
-
-func (ec *executionContext) _CreatePartitionPayload(ctx context.Context, sel ast.SelectionSet, obj *model.CreatePartitionPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, createPartitionPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CreatePartitionPayload")
-		case "partition":
-			out.Values[i] = ec._CreatePartitionPayload_partition(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
 
 var decisionLogImplementors = []string{"DecisionLog"}
 
@@ -5058,6 +5151,30 @@ func (ec *executionContext) _DecisionLogEdge(ctx context.Context, sel ast.Select
 	return out
 }
 
+var genericPartitionPayloadImplementors = []string{"GenericPartitionPayload"}
+
+func (ec *executionContext) _GenericPartitionPayload(ctx context.Context, sel ast.SelectionSet, obj *model.GenericPartitionPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, genericPartitionPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GenericPartitionPayload")
+		case "partition":
+			out.Values[i] = ec._GenericPartitionPayload_partition(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -5075,6 +5192,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = graphql.MarshalString("Mutation")
 		case "createPartition":
 			out.Values[i] = ec._Mutation_createPartition(ctx, field)
+		case "updatePartition":
+			out.Values[i] = ec._Mutation_updatePartition(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5823,6 +5942,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) unmarshalNUpdatePartitionInput2githubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋbusinessᚋpartitionsᚋmodelsᚐUpdateInput(ctx context.Context, v interface{}) (models.UpdateInput, error) {
+	res, err := ec.unmarshalInputUpdatePartitionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
@@ -6076,13 +6200,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) marshalOCreatePartitionPayload2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐCreatePartitionPayload(ctx context.Context, sel ast.SelectionSet, v *model.CreatePartitionPayload) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._CreatePartitionPayload(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalODateFilter2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋdatabaseᚋcommonᚐDateFilter(ctx context.Context, v interface{}) (*common.DateFilter, error) {
 	if v == nil {
 		return nil, nil
@@ -6190,6 +6307,13 @@ func (ec *executionContext) unmarshalODecisionLogSortOrder2ᚖgithubᚗcomᚋoxy
 	}
 	res, err := ec.unmarshalInputDecisionLogSortOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOGenericPartitionPayload2ᚖgithubᚗcomᚋoxynoᚑzetaᚋopaᚑcenterᚋpkgᚋopaᚑcenterᚋserverᚋgraphqlᚋmodelᚐGenericPartitionPayload(ctx context.Context, sel ast.SelectionSet, v *model.GenericPartitionPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._GenericPartitionPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

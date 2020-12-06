@@ -15,7 +15,7 @@ import (
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/server/graphql/utils"
 )
 
-func (r *mutationResolver) CreatePartition(ctx context.Context, input models.CreateInput) (*model.CreatePartitionPayload, error) {
+func (r *mutationResolver) CreatePartition(ctx context.Context, input models.CreateInput) (*model.GenericPartitionPayload, error) {
 	// Call business
 	part, err := r.BusiServices.PartitionsSvc.Create(ctx, &input)
 	// Check error
@@ -23,7 +23,27 @@ func (r *mutationResolver) CreatePartition(ctx context.Context, input models.Cre
 		return nil, err
 	}
 
-	return &model.CreatePartitionPayload{Partition: part}, nil
+	return &model.GenericPartitionPayload{Partition: part}, nil
+}
+
+func (r *mutationResolver) UpdatePartition(ctx context.Context, input models.UpdateInput) (*model.GenericPartitionPayload, error) {
+	// Transform relay id to id
+	id, err := utils.FromIDRelay(input.ID, mappers.PartitionIDPrefix)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+	// Override data
+	input.ID = id
+
+	// Call business
+	part, err := r.BusiServices.PartitionsSvc.Update(ctx, &input)
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.GenericPartitionPayload{Partition: part}, nil
 }
 
 func (r *queryResolver) Partitions(ctx context.Context, after *string, before *string, first *int, last *int, sort *models.SortOrder, filter *models.Filter) (*model.PartitionConnection, error) {

@@ -56,5 +56,12 @@ type Query {
 
 # Mutation
 type Mutation {
-  createPartition(input: CreatePartitionInput!): CreatePartitionPayload
+  """
+  Create Partition
+  """
+  createPartition(input: CreatePartitionInput!): GenericPartitionPayload
+  """
+  Update Partition
+  """
+  updatePartition(input: UpdatePartitionInput!): GenericPartitionPayload
 }

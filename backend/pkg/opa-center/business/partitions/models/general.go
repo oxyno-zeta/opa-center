@@ -34,3 +34,9 @@ type CreateInput struct {
 	StatusDataRetention  string `validate:"omitempty,max=255"`
 	DecisionLogRetention string `validate:"omitempty,max=255"`
 }
+
+type UpdateInput struct {
+	ID                   string  `validate:"required,min=1,max=255"`
+	StatusDataRetention  *string `validate:"omitempty,max=255"`
+	DecisionLogRetention *string `validate:"omitempty,max=255"`
+}
