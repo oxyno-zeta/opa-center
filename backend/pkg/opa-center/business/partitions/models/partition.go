@@ -9,4 +9,5 @@ type Partition struct {
 	Name                 string `gorm:"unique_index"`
 	StatusDataRetention  string
 	DecisionLogRetention string
+	AuthorizationToken   string
 }

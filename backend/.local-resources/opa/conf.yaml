@@ -1,6 +1,8 @@
 services:
   acmecorp:
     url: http://localhost:8081/api/
+    headers:
+      Authorization: Token 25da834d-de30-40c2-81c6-e7c05af552f1
 
 labels:
   app: myapp
@@ -9,13 +11,13 @@ labels:
 
 decision_logs:
   service: acmecorp
-  partition_name: fa608323-ba15-4f4f-b6d7-e544ad8f615a
+  partition_name: eb2fdde6-2309-4e2c-9c84-eddf648a299a
   reporting:
     min_delay_seconds: 30
     max_delay_seconds: 60
 
 status:
   service: acmecorp
-  partition_name: fa608323-ba15-4f4f-b6d7-e544ad8f615a
+  partition_name: eb2fdde6-2309-4e2c-9c84-eddf648a299a
 
 default_decision: /http/example/authz/allow

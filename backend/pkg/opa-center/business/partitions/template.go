@@ -6,6 +6,8 @@ const opaCfgTemplateString = `
 services:
   opacenter-{{ .Partition.Name }}:
     url: {{ .ServiceURL }}
+    headers:
+      Authorization: Token {{ .Partition.AuthorizationToken }}
 
 decision_logs:
   service: opacenter-{{ .Partition.Name }}

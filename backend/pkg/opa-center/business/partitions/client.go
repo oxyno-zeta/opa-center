@@ -43,6 +43,8 @@ type Service interface {
 	FindByID(ctx context.Context, id string, projection *models.Projection) (*models.Partition, error)
 	// Generate OPA configuration
 	GenerateOPAConfiguration(ctx context.Context, id string) (string, error)
+	// Check a request is authenticated. This must be used ONLY for data upload in the REST api endpoints.
+	CheckAuthenticated(ctx context.Context, partitionID, authorizationHeader string) error
 }
 
 type RetentionService interface {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/business"
+	"github.com/oxyno-zeta/opa-center/pkg/opa-center/common/utils"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/log"
 )
 
@@ -16,6 +17,17 @@ func AddStatusEndpoints(router gin.IRouter, busiServices *business.Services) {
 		logger := log.GetLoggerFromGin(c)
 		// Get partition id
 		partitionID := c.Param("partitionid")
+
+		// Check if it is authenticated
+		err := busiServices.PartitionsSvc.CheckAuthenticated(c.Request.Context(), partitionID, c.GetHeader("Authorization"))
+		// Check error
+		if err != nil {
+			logger.Error(err)
+			utils.AnswerWithError(c, err)
+
+			return
+		}
+
 		// Read all input
 		bb, err := ioutil.ReadAll(c.Request.Body)
 		// Check error

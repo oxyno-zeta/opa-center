@@ -56,7 +56,7 @@ func (r *queryResolver) Partitions(ctx context.Context, after *string, before *s
 		return nil, err
 	}
 	// Ask for id projection
-	// This is forced to have generate urls
+	// This is forced to have generate urls and configuration
 	projection.ID = true
 
 	// Get page input

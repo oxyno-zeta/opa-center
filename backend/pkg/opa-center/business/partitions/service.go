@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"path"
 	"regexp"
+	"strings"
 	"text/template"
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/gofrs/uuid"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/authx/authorization"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/daos"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/business/partitions/models"
@@ -96,6 +98,49 @@ func (s *service) MigrateDB(systemLogger log.Logger) error {
 	return s.dao.MigrateDB()
 }
 
+func (s *service) CheckAuthenticated(ctx context.Context, partitionID, authorizationHeader string) error {
+	// Get logger
+	logger := log.GetLoggerFromContext(ctx)
+
+	// Check that authentication header isn't empty
+	if authorizationHeader == "" {
+		logger.Error("No authorization header content detected")
+
+		return errors.NewUnauthorizedError("unauthorized")
+	}
+
+	// Parse authentication header
+	authorizationSplit := strings.Split(authorizationHeader, " ")
+	// Check that first part is "Token"
+	if authorizationSplit[0] != "Token" {
+		logger.Error("Authorization header don't start with Token prefix")
+
+		return errors.NewUnauthorizedError("unauthorized")
+	}
+
+	// Find partition with given id
+	partition, err := s.dao.FindByID(partitionID, &models.Projection{ID: true, AuthorizationToken: true})
+	// Check error
+	if err != nil {
+		return err
+	}
+	// Check if partition is found
+	if partition == nil {
+		logger.Errorf("Partition with id %d cannot be found in database", partitionID)
+
+		return errors.NewUnauthorizedError("unauthorized")
+	}
+
+	// Check if upload is authenticated
+	if partition.AuthorizationToken != authorizationSplit[1] {
+		logger.Error("Authorization token not equal to selected partition one")
+
+		return errors.NewUnauthorizedError("unauthorized")
+	}
+
+	return nil
+}
+
 func (s *service) GetAllPaginated(
 	ctx context.Context,
 	page *pagination.PageInput,
@@ -173,11 +218,19 @@ func (s *service) Create(ctx context.Context, inp *models.CreateInput) (*models.
 		return nil, err
 	}
 
+	// Create new uuid as "authorization token"
+	uuid, err := uuid.NewV4()
+	// Check error
+	if err != nil {
+		return nil, err
+	}
+
 	// Create partition object
 	obj := &models.Partition{
 		Name:                 inp.Name,
 		DecisionLogRetention: inp.DecisionLogRetention,
 		StatusDataRetention:  inp.StatusDataRetention,
+		AuthorizationToken:   uuid.String(),
 	}
 
 	// Search if it already exists

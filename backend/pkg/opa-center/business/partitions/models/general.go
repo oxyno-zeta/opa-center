@@ -27,6 +27,7 @@ type Projection struct {
 	Name                 bool `dbfield:"name" graphqlfield:"name"`
 	StatusDataRetention  bool `dbfield:"status_data_retention" graphqlfield:"statusDataRetention"`
 	DecisionLogRetention bool `dbfield:"decision_log_retention" graphqlfield:"decisionLogRetention"`
+	AuthorizationToken   bool `dbfield:"authorization_token"`
 }
 
 type CreateInput struct {
