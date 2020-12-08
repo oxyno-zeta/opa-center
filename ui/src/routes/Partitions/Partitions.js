@@ -31,6 +31,8 @@ const GET_PARTITIONS = gql`
           updatedAt
           name
           opaConfiguration
+          statusDataRetention
+          decisionLogRetention
         }
       }
     }

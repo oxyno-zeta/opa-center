@@ -37,6 +37,14 @@ function PartitionCard({ partition }) {
         <Typography variant="body2" component="p">
           Updated At: <b>{dayjs(partition.updatedAt).format("LLL")}</b>
         </Typography>
+        <Typography variant="body2" component="p">
+          Decision logs retention:{" "}
+          <b>{partition.decisionLogsRetention || "Unlimited"}</b>
+        </Typography>
+        <Typography variant="body2" component="p">
+          Status data retention:{" "}
+          <b>{partition.statusDataRetention || "Unlimited"}</b>
+        </Typography>
       </CardContent>
       <CardActions>
         <Button
