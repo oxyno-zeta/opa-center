@@ -33,7 +33,7 @@ require (
 	github.com/uber/jaeger-lib v2.4.0+incompatible
 	github.com/vektah/gqlparser/v2 v2.1.0
 	golang.org/x/oauth2 v0.0.0-20201109201403-9fd604954f58
-	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
+	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gorm.io/datatypes v1.0.0
 	gorm.io/driver/postgres v1.0.5
