@@ -23,7 +23,7 @@ type stackTracer interface {
 
 func (ll *loggerIns) GetCronLogger() cron.Logger {
 	return &cronLogger{
-		logger: ll.WithField("from", "cron"),
+		logger: ll.WithField("logger", "cron"),
 	}
 }
 
