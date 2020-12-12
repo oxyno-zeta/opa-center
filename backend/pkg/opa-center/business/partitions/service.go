@@ -24,7 +24,7 @@ import (
 
 const mainAuthorizationPrefix = "partitions"
 
-var validNameRegex = regexp.MustCompile("^[^-][a-zA-Z0-9-]+[^-]$")
+var validNameRegex = regexp.MustCompile("^[^-][a-z0-9-]+[^-]$")
 
 type service struct {
 	dao                daos.Dao
