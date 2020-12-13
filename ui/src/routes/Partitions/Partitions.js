@@ -3,11 +3,14 @@ import { gql, useQuery } from "@apollo/client";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
+import IconButton from "@material-ui/core/IconButton";
+import AddIcon from "@material-ui/icons/Add";
 import CenterLoadingSpinner from "../../components/CenterLoadingSpinner";
 import GraphqlErrors from "../../components/GraphqlErrors";
 import PageTitle from "../../components/PageTitle";
 import PartitionCard from "./components/PartitionCard";
 import TablePagination from "../../components/TablePagination";
+import CreatePartition from "./components/CreatePartition";
 
 const GET_PARTITIONS = gql`
   query getPartitions(
@@ -51,10 +54,17 @@ function Partitions() {
   const MAX_PAGINATION = 10;
   // Query variables
   const qVariables = { first: MAX_PAGINATION };
+  // Save variables
+  const [variables, setVariables] = React.useState(qVariables);
   // Query data
-  const { loading, error, data, fetchMore } = useQuery(GET_PARTITIONS, {
-    variables: qVariables,
-  });
+  const { loading, error, data, fetchMore, refetch } = useQuery(
+    GET_PARTITIONS,
+    {
+      variables,
+    }
+  );
+  // Get is create modal opened
+  const [isCreateModalOpened, setCreateModalOpened] = React.useState(false);
 
   const handleNextPage = async () => {
     const variables = {
@@ -64,10 +74,13 @@ function Partitions() {
       last: undefined,
       before: undefined,
     };
+    // Fetch more
     await fetchMore({
       variables,
       updateQuery: (previousResult, { fetchMoreResult }) => fetchMoreResult,
     });
+    // Save variables for refetch
+    setVariables(variables);
   };
 
   const handlePreviousPage = async () => {
@@ -78,10 +91,13 @@ function Partitions() {
       first: undefined,
       after: undefined,
     };
+    // Fetch more
     await fetchMore({
       variables,
       updateQuery: (previousResult, { fetchMoreResult }) => fetchMoreResult,
     });
+    // Save variables for refetch
+    setVariables(variables);
   };
 
   // Check if loading is enabled to display loading
@@ -136,9 +152,29 @@ function Partitions() {
   // Display
   return (
     <>
-      <PageTitle title={<>Partitions</>} />
+      <PageTitle
+        title={<>Partitions</>}
+        rightElement={
+          <IconButton
+            onClick={() => {
+              setCreateModalOpened(true);
+            }}
+          >
+            <AddIcon />
+          </IconButton>
+        }
+      />
 
       {content}
+      <CreatePartition
+        isOpened={isCreateModalOpened}
+        handleClose={() => {
+          setCreateModalOpened(false);
+        }}
+        refetch={() => {
+          refetch(variables);
+        }}
+      />
     </>
   );
 }
