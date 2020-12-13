@@ -1,4 +1,4 @@
-// +build integration
+//+build integration
 
 package config
 
@@ -58,6 +58,12 @@ database:
     value: host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable
 
 `,
+				"center.yaml": `
+center:
+  baseUrl: http://localhost:8080
+  cronRetentionProcess: "@every 30s"
+  skipRetentionProcessAtStartup: false
+`,
 			},
 			expectedResult: &Config{
 				Log: &LogConfig{
@@ -70,7 +76,12 @@ database:
 				},
 				Server:             &ServerConfig{Port: 8080},
 				InternalServer:     &ServerConfig{Port: 9090},
-				OPAPublisherServer: &ServerConfig{Port: 9090},
+				OPAPublisherServer: &ServerConfig{Port: 8081},
+				Center: &CenterConfig{
+					BaseURL:                       "http://localhost:8080",
+					CronRetentionProcess:          "@every 30s",
+					SkipRetentionProcessAtStartup: false,
+				},
 			},
 		},
 	}
@@ -159,6 +170,12 @@ database:
 tracing:
   enabled: true
 `,
+		"center.yaml": `
+center:
+  baseUrl: http://localhost:8080
+  cronRetentionProcess: "@every 30s"
+  skipRetentionProcessAtStartup: false
+`,
 	}
 
 	defer os.RemoveAll(dir) // clean up
@@ -209,11 +226,16 @@ tracing:
 		InternalServer: &ServerConfig{
 			Port: 9090,
 		},
-		OPAPublisherServer: &ServerConfig{Port: 9090},
+		OPAPublisherServer: &ServerConfig{Port: 8081},
 		Tracing:            &TracingConfig{Enabled: true},
 		Database: &DatabaseConfig{
 
 			ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
+		},
+		Center: &CenterConfig{
+			BaseURL:                       "http://localhost:8080",
+			CronRetentionProcess:          "@every 30s",
+			SkipRetentionProcessAtStartup: false,
 		},
 	}, res)
 
@@ -248,10 +270,15 @@ log:
 			InternalServer: &ServerConfig{
 				Port: 9090,
 			},
-			OPAPublisherServer: &ServerConfig{Port: 9090},
+			OPAPublisherServer: &ServerConfig{Port: 8081},
 			Tracing:            &TracingConfig{Enabled: true},
 			Database: &DatabaseConfig{
 				ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
+			},
+			Center: &CenterConfig{
+				BaseURL:                       "http://localhost:8080",
+				CronRetentionProcess:          "@every 30s",
+				SkipRetentionProcessAtStartup: false,
 			},
 		}, res)
 		return
@@ -293,6 +320,12 @@ oidcAuthentication:
   clientSecret:
     path: ` + os.TempDir() + `/secret1
 `,
+		"center.yaml": `
+center:
+  baseUrl: http://localhost:8080
+  cronRetentionProcess: "@every 30s"
+  skipRetentionProcessAtStartup: false
+`,
 	}
 
 	defer os.RemoveAll(dir) // clean up
@@ -343,7 +376,7 @@ oidcAuthentication:
 		InternalServer: &ServerConfig{
 			Port: 9090,
 		},
-		OPAPublisherServer: &ServerConfig{Port: 9090},
+		OPAPublisherServer: &ServerConfig{Port: 8081},
 		Tracing:            &TracingConfig{Enabled: true},
 		Database: &DatabaseConfig{
 			ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
@@ -360,6 +393,11 @@ oidcAuthentication:
 			RedirectURL:   "http://localhost:8080/",
 			EmailVerified: true,
 			Scopes:        []string{"openid", "email", "profile"},
+		},
+		Center: &CenterConfig{
+			BaseURL:                       "http://localhost:8080",
+			CronRetentionProcess:          "@every 30s",
+			SkipRetentionProcessAtStartup: false,
 		},
 	}, res)
 
@@ -392,7 +430,7 @@ oidcAuthentication:
 			InternalServer: &ServerConfig{
 				Port: 9090,
 			},
-			OPAPublisherServer: &ServerConfig{Port: 9090},
+			OPAPublisherServer: &ServerConfig{Port: 8081},
 			Tracing:            &TracingConfig{Enabled: true},
 			Database: &DatabaseConfig{
 				ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
@@ -409,6 +447,11 @@ oidcAuthentication:
 				RedirectURL:   "http://localhost:8080/",
 				EmailVerified: true,
 				Scopes:        []string{"openid", "email", "profile"},
+			},
+			Center: &CenterConfig{
+				BaseURL:                       "http://localhost:8080",
+				CronRetentionProcess:          "@every 30s",
+				SkipRetentionProcessAtStartup: false,
 			},
 		}, res)
 		return
@@ -439,6 +482,12 @@ database:
 		"tracing.yaml": `
 tracing:
   enabled: true
+`,
+		"center.yaml": `
+center:
+  baseUrl: http://localhost:8080
+  cronRetentionProcess: "@every 30s"
+  skipRetentionProcessAtStartup: false
 `,
 	}
 
@@ -490,10 +539,15 @@ tracing:
 		InternalServer: &ServerConfig{
 			Port: 9090,
 		},
-		OPAPublisherServer: &ServerConfig{Port: 9090},
+		OPAPublisherServer: &ServerConfig{Port: 8081},
 		Tracing:            &TracingConfig{Enabled: true},
 		Database: &DatabaseConfig{
 			ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
+		},
+		Center: &CenterConfig{
+			BaseURL:                       "http://localhost:8080",
+			CronRetentionProcess:          "@every 30s",
+			SkipRetentionProcessAtStartup: false,
 		},
 	}, res)
 
@@ -529,10 +583,15 @@ configuration with error
 			InternalServer: &ServerConfig{
 				Port: 9090,
 			},
-			Tracing: &TracingConfig{Enabled: true},
+			OPAPublisherServer: &ServerConfig{Port: 8081},
+			Tracing:            &TracingConfig{Enabled: true},
 			Database: &DatabaseConfig{
-
 				ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
+			},
+			Center: &CenterConfig{
+				BaseURL:                       "http://localhost:8080",
+				CronRetentionProcess:          "@every 30s",
+				SkipRetentionProcessAtStartup: false,
 			},
 		}, res)
 	}
@@ -570,6 +629,12 @@ opaServerAuthorization:
 opaServerAuthorization:
   tags:
     t2: v2
+`,
+		"center.yaml": `
+center:
+  baseUrl: http://localhost:8080
+  cronRetentionProcess: "@every 30s"
+  skipRetentionProcessAtStartup: false
 `,
 	}
 
@@ -621,7 +686,7 @@ opaServerAuthorization:
 		InternalServer: &ServerConfig{
 			Port: 9090,
 		},
-		OPAPublisherServer: &ServerConfig{Port: 9090},
+		OPAPublisherServer: &ServerConfig{Port: 8081},
 		Tracing:            &TracingConfig{Enabled: true},
 		Database: &DatabaseConfig{
 			ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
@@ -632,6 +697,11 @@ opaServerAuthorization:
 				"t1": "v1",
 				"t2": "v2",
 			},
+		},
+		Center: &CenterConfig{
+			BaseURL:                       "http://localhost:8080",
+			CronRetentionProcess:          "@every 30s",
+			SkipRetentionProcessAtStartup: false,
 		},
 	}, res)
 
@@ -666,7 +736,7 @@ opaServerAuthorization:
 			InternalServer: &ServerConfig{
 				Port: 9090,
 			},
-			OPAPublisherServer: &ServerConfig{Port: 9090},
+			OPAPublisherServer: &ServerConfig{Port: 8081},
 			Tracing:            &TracingConfig{Enabled: true},
 			Database: &DatabaseConfig{
 				ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
@@ -677,6 +747,11 @@ opaServerAuthorization:
 					"t1": "v1",
 					"t3": "v3",
 				},
+			},
+			Center: &CenterConfig{
+				BaseURL:                       "http://localhost:8080",
+				CronRetentionProcess:          "@every 30s",
+				SkipRetentionProcessAtStartup: false,
 			},
 		}, res)
 		return
@@ -717,6 +792,12 @@ database:
   connectionUrl:
     value: host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable
 
+`,
+		"center.yaml": `
+center:
+  baseUrl: http://localhost:8080
+  cronRetentionProcess: "@every 30s"
+  skipRetentionProcessAtStartup: false
 `,
 	}
 
@@ -768,10 +849,15 @@ database:
 		InternalServer: &ServerConfig{
 			Port: 9090,
 		},
-		OPAPublisherServer: &ServerConfig{Port: 9090},
+		OPAPublisherServer: &ServerConfig{Port: 8081},
 		Tracing:            &TracingConfig{Enabled: false},
 		Database: &DatabaseConfig{
 			ConnectionURL: &CredentialConfig{Value: "host=localhost port=5432 user=postgres dbname=postgres password=postgres sslmode=disable"},
+		},
+		Center: &CenterConfig{
+			BaseURL:                       "http://localhost:8080",
+			CronRetentionProcess:          "@every 30s",
+			SkipRetentionProcessAtStartup: false,
 		},
 	}, res)
 }
