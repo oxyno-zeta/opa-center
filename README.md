@@ -4,6 +4,8 @@ This project is based on OPA (Open Policy Agent) and offer a service to display 
 
 This project won't replace the great [Styra](https://www.styra.com/) project and features will be done ONLY if it is accepted by the OPA maintainers.
 
+**Documentation isn't up-to-date and need to be updated !**
+
 ## Convention
 
 - 1 folder is related to one project (backend, ui, ...) in a specific language
