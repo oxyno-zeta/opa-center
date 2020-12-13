@@ -26,6 +26,7 @@ const client = new ApolloClient({
         fields: {
           partition: {
             decisionLogs: relayStylePagination(),
+            statuses: relayStylePagination(),
           },
         },
       },
