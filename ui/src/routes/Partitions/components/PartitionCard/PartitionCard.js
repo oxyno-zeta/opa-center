@@ -39,7 +39,7 @@ function PartitionCard({ partition }) {
         </Typography>
         <Typography variant="body2" component="p">
           Decision logs retention:{" "}
-          <b>{partition.decisionLogsRetention || "Unlimited"}</b>
+          <b>{partition.decisionLogRetention || "Unlimited"}</b>
         </Typography>
         <Typography variant="body2" component="p">
           Status data retention:{" "}
