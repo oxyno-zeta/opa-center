@@ -11,6 +11,7 @@ import PageTitle from "../../components/PageTitle";
 import PartitionCard from "./components/PartitionCard";
 import TablePagination from "../../components/TablePagination";
 import CreatePartition from "./components/CreatePartition";
+import UpdatePartition from "./components/UpdatePartition";
 
 const GET_PARTITIONS = gql`
   query getPartitions(
@@ -65,6 +66,8 @@ function Partitions() {
   );
   // Get is create modal opened
   const [isCreateModalOpened, setCreateModalOpened] = React.useState(false);
+  // Get is update modal opened
+  const [updateModalData, setUpdateModalData] = React.useState(null);
 
   const handleNextPage = async () => {
     const variables = {
@@ -135,7 +138,12 @@ function Partitions() {
               xs={12}
               classes={{ root: classes.gridRoot }}
             >
-              <PartitionCard partition={node} />
+              <PartitionCard
+                partition={node}
+                openEdit={() => {
+                  setUpdateModalData(node);
+                }}
+              />
             </Grid>
           ))}
         </Grid>
@@ -175,6 +183,15 @@ function Partitions() {
           refetch(variables);
         }}
       />
+      {updateModalData && (
+        <UpdatePartition
+          partition={updateModalData}
+          isOpened={!!updateModalData}
+          handleClose={() => {
+            setUpdateModalData(null);
+          }}
+        />
+      )}
     </>
   );
 }

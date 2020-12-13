@@ -17,7 +17,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function PartitionCard({ partition }) {
+function PartitionCard({ partition, openEdit }) {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
@@ -72,6 +72,14 @@ function PartitionCard({ partition }) {
           to={`/partitions/${partition.id}/statuses/`}
         >
           Go to Status data
+        </Button>
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={openEdit}
+          classes={{ root: classes.button }}
+        >
+          Edit
         </Button>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
