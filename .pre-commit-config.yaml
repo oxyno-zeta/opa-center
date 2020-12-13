@@ -11,7 +11,6 @@ repos:
       - id: check-executables-have-shebangs
       - id: detect-aws-credentials
       - id: detect-private-key
-      - id: trailing-whitespace
   - repo: https://github.com/prettier/pre-commit
     # Use the sha or branch you want to point at
     rev: v2.0.0
@@ -48,5 +47,14 @@ repos:
         args:
           - backend
           - "make code/graphql/no-break-check"
+        require_serial: true
+        language: script
+      - id: ui-lint
+        files: ^ui\/src\/.*\.js$
+        name: UI lint
+        entry: ./run-sub-folder-task.sh
+        args:
+          - ui
+          - "yarn lint"
         require_serial: true
         language: script
