@@ -61,6 +61,8 @@ function Partitions() {
       ...qVariables,
       after: data.partitions.pageInfo.endCursor,
       first: MAX_PAGINATION,
+      last: undefined,
+      before: undefined,
     };
     await fetchMore({
       variables,
@@ -74,6 +76,7 @@ function Partitions() {
       before: data.partitions.pageInfo.startCursor,
       last: MAX_PAGINATION,
       first: undefined,
+      after: undefined,
     };
     await fetchMore({
       variables,
