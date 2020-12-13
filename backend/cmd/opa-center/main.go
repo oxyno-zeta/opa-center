@@ -8,7 +8,6 @@ import (
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/business"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/config"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/database"
-	"github.com/oxyno-zeta/opa-center/pkg/opa-center/lockdistributor"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/log"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/metrics"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/server"
@@ -80,21 +79,6 @@ func main() {
 	// Add configuration reload hook
 	cfgManager.AddOnChangeHook(func() {
 		err = db.Reconnect()
-		if err != nil {
-			logger.WithError(err).Fatal(err)
-		}
-	})
-
-	// Create lock distributor service
-	ld := lockdistributor.NewService(cfgManager, db)
-	// Initialize lock distributor
-	err = ld.Initialize(logger)
-	if err != nil {
-		logger.WithError(err).Fatal(err)
-	}
-	// Add configuration reload hook
-	cfgManager.AddOnChangeHook(func() {
-		err = ld.Initialize(logger)
 		if err != nil {
 			logger.WithError(err).Fatal(err)
 		}
