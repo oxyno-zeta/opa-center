@@ -34,7 +34,8 @@ run:
   # directory holds the correct copies of dependencies and ignores
   # the dependency descriptions in go.mod.
   # modules-download-mode: readonly|release|vendor
-  modules-download-mode: readonly
+  # Disable this due to lint problems in CI
+  # modules-download-mode: readonly
   # Allow multiple parallel golangci-lint instances running.
   # If false (default) - golangci-lint acquires file lock on start.
   allow-parallel-runners: false
