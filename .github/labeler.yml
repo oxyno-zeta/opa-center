@@ -1,0 +1,25 @@
+# Add ui label
+ui:
+  - ui/**/*
+
+# Add backend label
+backend:
+  - backend/**/*
+
+# Add test label
+tests:
+  - backend/pkg/**/*_test.go
+
+# Add actions label
+actions:
+  - .github/**/*.yml
+  - .github/*.yml
+
+# Add ci label
+ci:
+  - .circleci/*
+
+# Add documentation label
+documentation:
+  - "**/*.md"
+  - "*.md"
