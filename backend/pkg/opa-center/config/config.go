@@ -36,11 +36,11 @@ type Config struct {
 
 // OIDCAuthConfig OpenID Connect authentication configurations.
 type OIDCAuthConfig struct {
-	ClientID      string            `mapstructure:"clientID" validate:"required"`
+	ClientID      string            `mapstructure:"clientId" validate:"required"`
 	ClientSecret  *CredentialConfig `mapstructure:"clientSecret" validate:"omitempty,dive"`
 	IssuerURL     string            `mapstructure:"issuerUrl" validate:"required,url"`
 	RedirectURL   string            `mapstructure:"redirectUrl" validate:"required,url"`
-	Scopes        []string          `mapstructure:"scope"`
+	Scopes        []string          `mapstructure:"scopes"`
 	State         string            `mapstructure:"state" validate:"required"`
 	CookieName    string            `mapstructure:"cookieName"`
 	EmailVerified bool              `mapstructure:"emailVerified"`
@@ -113,7 +113,7 @@ type CredentialConfig struct {
 
 // CenterConfig OPA Center configuration.
 type CenterConfig struct {
-	BaseURL                       string `mapstructure:"baseURL" validate:"required,url"`
+	BaseURL                       string `mapstructure:"baseUrl" validate:"required,url"`
 	CronRetentionProcess          string `mapstructure:"cronRetentionProcess" validate:"required"`
 	SkipRetentionProcessAtStartup bool   `mapstructure:"skipRetentionProcessAtStartup"`
 }

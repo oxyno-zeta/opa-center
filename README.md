@@ -1,31 +1,53 @@
-# opa-center
+<h1 align="center">opa-center</h1>
 
-This project is based on OPA (Open Policy Agent) and offer a service to display and save decision logs from OPA server instances.
+<h4 align="center"> This project is in alpha stage ! Things can change. </h4>
 
-This project won't replace the great [Styra](https://www.styra.com/) project and features will be done ONLY if it is accepted by the OPA maintainers.
+<p align="center">
+  <a href="http://godoc.org/github.com/oxyno-zeta/opa-center" rel="noopener noreferer" target="_blank"><img src="https://img.shields.io/badge/godoc-reference-blue.svg" alt="Go Doc" /></a>
+  <a href="https://circleci.com/gh/oxyno-zeta/opa-center" rel="noopener noreferer" target="_blank"><img src="https://circleci.com/gh/oxyno-zeta/opa-center.svg?style=svg" alt="CircleCI" /></a>
+  <a href="https://goreportcard.com/report/github.com/oxyno-zeta/opa-center" rel="noopener noreferer" target="_blank"><img src="https://goreportcard.com/badge/github.com/oxyno-zeta/opa-center" alt="Go Report Card" /></a>
+</p>
+<p align="center">
+  <a href="https://coveralls.io/github/oxyno-zeta/opa-center?branch=master" rel="noopener noreferer" target="_blank"><img src="https://coveralls.io/repos/github/oxyno-zeta/opa-center/badge.svg?branch=master" alt="Coverage Status" /></a>
+  <a href="https://hub.docker.com/r/oxynozeta/opa-center" rel="noopener noreferer" target="_blank"><img src="https://img.shields.io/docker/pulls/oxynozeta/opa-center.svg" alt="Docker Pulls" /></a>
+  <a href="https://github.com/oxyno-zeta/opa-center/blob/master/LICENSE" rel="noopener noreferer" target="_blank"><img src="https://img.shields.io/github/license/oxyno-zeta/opa-center" alt="GitHub license" /></a>
+  <a href="https://github.com/oxyno-zeta/opa-center/releases" rel="noopener noreferer" target="_blank"><img src="https://img.shields.io/github/v/release/oxyno-zeta/opa-center" alt="GitHub release (latest by date)" /></a>
+</p>
 
-**Documentation isn't up-to-date and need to be updated !**
+## Description
 
-## Convention
+This project is based on OPA ([Open Policy Agent](https://www.openpolicyagent.org/)) and offer a service to display and save decision logs and status data from OPA server instances. It won't replace the great [Styra](https://www.styra.com/) project. This is done in order to offer a simple alternative to Styra.
 
-- 1 folder is related to one project (backend, ui, ...) in a specific language
-- the git commit convention is the angular one (see [here](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#-commit-message-guidelines))
-- Editorconfig is used to keep file content in a uniform way
+## Features
 
-## Install
+- Save Decision logs and Status data
+- Display Decision logs and Status data
+- Data retention
+- OIDC authentication
+- OPA authorization
 
-This project is using the python software called `pre-commit`. This is used to install and have git pre-commit hooks.
+## Configuration
 
-Those ones are here to validate code, lint projects, lint and validate GraphQL, ...
+See [configuration](./docs/configuration.md) documentation.
 
-Moreover, some tools are used in the backend project. These tools are using NodeJS and Yarn for package installation.
+In [Authorizations](authorizations.md), more information are present about authorization format that can be validated from an OPA server.
 
-Just run the script called `./install-deps.sh` in order to install needed dependencies.
+## How to deploy ?
 
-## How to use ?
+## Want to contribute ?
 
-The project is using VSCode Workspaces. Just open the `opa-center.code-workspace` in order to have the right integration for sub projects.
+- Read the [CONTRIBUTING](./CONTRIBUTING.md) guide
+- Read the [DEVELOPER](./DEVELOPER.md) guide
 
-## Release
+## Thanks
 
-In order to release, the project is using `semantic-release` in order to generate a release directly with the Changelog (git based).
+- My wife BH to support me doing this
+- tsandall to accept this project
+
+## Author
+
+- Oxyno-zeta (Havrileck Alexandre)
+
+## License
+
+Apache 2.0 (See in LICENSE)
