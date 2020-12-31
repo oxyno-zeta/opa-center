@@ -8,6 +8,9 @@
 	},
 	{
 		"path": "ui"
+	},
+	{
+		"path": "docs"
 	}
 ],
   "settings": {}

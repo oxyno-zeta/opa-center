@@ -1,5 +1,5 @@
 oidcAuthentication:
-  clientID: client-without-secret
+  clientId: client-without-secret
   state: my-secret-state-key
   issuerUrl: http://localhost:8088/auth/realms/integration
   # Backend development
