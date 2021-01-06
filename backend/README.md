@@ -29,7 +29,6 @@ In this folder, there is:
 - `pkg/../common`: This folder contains common errors and utils used in all other packages.
 - `pkg/../config`: This folder contains the package managing configuration. This provide a manager that give access to the last configuration loaded in the application. This allow to add hook for configuration reload.
 - `pkg/../database`: This folder contains the package managing the SQL database connection and access.
-- `pkg/../lockdistributor`: This contains a package that allow to acquire a distributed semaphore based on PostgreSQL.
 - `pkg/../log`: This contains a package to have a logger.
 - `pkg/../metrics`: This contains a package for metrics (Prometheus in this case).
 - `pkg/../server`: This package contains servers code, GraphQL code and utils.
