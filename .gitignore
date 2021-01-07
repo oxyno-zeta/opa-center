@@ -255,3 +255,4 @@ _dist/
 coverage.html
 *.tar.gz
 .run/
+backend/static/
