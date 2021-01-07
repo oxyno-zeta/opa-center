@@ -86,7 +86,7 @@ Database connection and management are based on [Gorm](https://gorm.io/). Only P
 
 | Key           | Type                                                | Required | Default                          | Description                                                              |
 | ------------- | --------------------------------------------------- | -------- | -------------------------------- | ------------------------------------------------------------------------ |
-| clientID      | String                                              | Yes      | None                             | Client ID                                                                |
+| clientId      | String                                              | Yes      | None                             | Client ID                                                                |
 | clientSecret  | [CredentialConfiguration](#credentialconfiguration) | No       | None                             | Client Secret                                                            |
 | issuerUrl     | String                                              | Yes      | None                             | Issuer URL (example: https://fake.com/realm/fake-realm                   |
 | redirectUrl   | String                                              | Yes      | None                             | Redirect URL (this is the service url)                                   |
