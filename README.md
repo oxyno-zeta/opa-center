@@ -3,12 +3,11 @@
 <h4 align="center"> This project is in alpha stage ! Things can change. </h4>
 
 <p align="center">
-  <a href="http://godoc.org/github.com/oxyno-zeta/opa-center" rel="noopener noreferer" target="_blank"><img src="https://img.shields.io/badge/godoc-reference-blue.svg" alt="Go Doc" /></a>
   <a href="https://circleci.com/gh/oxyno-zeta/opa-center" rel="noopener noreferer" target="_blank"><img src="https://circleci.com/gh/oxyno-zeta/opa-center.svg?style=svg" alt="CircleCI" /></a>
   <a href="https://goreportcard.com/report/github.com/oxyno-zeta/opa-center" rel="noopener noreferer" target="_blank"><img src="https://goreportcard.com/badge/github.com/oxyno-zeta/opa-center" alt="Go Report Card" /></a>
+  <a href="https://coveralls.io/github/oxyno-zeta/opa-center?branch=master" rel="noopener noreferer" target="_blank"><img src="https://coveralls.io/repos/github/oxyno-zeta/opa-center/badge.svg?branch=master" alt="Coverage Status" /></a>
 </p>
 <p align="center">
-  <a href="https://coveralls.io/github/oxyno-zeta/opa-center?branch=master" rel="noopener noreferer" target="_blank"><img src="https://coveralls.io/repos/github/oxyno-zeta/opa-center/badge.svg?branch=master" alt="Coverage Status" /></a>
   <a href="https://hub.docker.com/r/oxynozeta/opa-center" rel="noopener noreferer" target="_blank"><img src="https://img.shields.io/docker/pulls/oxynozeta/opa-center.svg" alt="Docker Pulls" /></a>
   <a href="https://github.com/oxyno-zeta/opa-center/blob/master/LICENSE" rel="noopener noreferer" target="_blank"><img src="https://img.shields.io/github/license/oxyno-zeta/opa-center" alt="GitHub license" /></a>
   <a href="https://github.com/oxyno-zeta/opa-center/releases" rel="noopener noreferer" target="_blank"><img src="https://img.shields.io/github/v/release/oxyno-zeta/opa-center" alt="GitHub release (latest by date)" /></a>
