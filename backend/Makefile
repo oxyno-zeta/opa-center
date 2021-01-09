@@ -77,7 +77,7 @@ code/build: code/clean setup/dep/install
 # 	CGO_ENABLED=0 GOFLAGS="$(GO_VENDOR)" gox -output="$(DISTDIR)/bin/{{.OS}}-{{.Arch}}/{{.Dir}}" -osarch='$(TARGETS)' $(if $(TAGS),-tags '$(TAGS)',) -ldflags '$(LDFLAGS)' ${PKG}/cmd/${PROJECT_NAME}
 
 .PHONY: code/build-cross
-code/build-cross: code/clean setup/dep/install
+code/build-cross: code/clean setup/dep/install setup/static
 ifdef HAS_GORELEASER
 	goreleaser --snapshot --skip-publish
 endif
@@ -165,12 +165,16 @@ setup/metrics-services:
 	docker run --rm -d --name grafana --network=host grafana/grafana:7.0.3
 
 .PHONY: setup/services
-setup/services: down/services
+setup/services: down/services setup/static
 	@echo "Setup services"
 	docker run -d --rm --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e PGDATA=/var/lib/postgresql/data/pgdata -v $(CURDIR)/.run/postgres:/var/lib/postgresql/data postgres:12
 	tar czvf .local-resources/opa/bundle.tar.gz --directory=.local-resources/opa/bundle example/
 	docker run -d --rm --name opa --network=host -v $(CURDIR)/.local-resources/opa/bundle.tar.gz:/bundle.tar.gz -v $(CURDIR)/.local-resources/opa/conf.yaml:/conf.yaml openpolicyagent/opa run --server --log-level debug --log-format text --bundle /bundle.tar.gz -c /conf.yaml
 	docker run -d --rm --name keycloak -p 8088:8080 -e KEYCLOAK_IMPORT=/tmp/realm-export.json -v $(CURDIR)/.local-resources/keycloak/realm-export.json:/tmp/realm-export.json -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin jboss/keycloak:10.0.0
+
+.PHONY: setup/static
+setup/static:
+	mkdir -p static/ && cp ./.local-resources/static-dev/* static/
 
 .PHONY: setup/dep/install
 setup/dep/install:
