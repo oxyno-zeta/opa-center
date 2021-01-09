@@ -12,6 +12,9 @@ yarn build
 # Come back
 cd ..
 
+# Create static directory just in case
+mkdir -p backend/static/
+
 # Copy UI into backend static
 cp -Rf ui/build/* backend/static/
 
@@ -20,12 +23,6 @@ cd backend
 
 # Build cross platform backend
 make code/build-cross
-
-# Remove new static
-rm -Rf static/
-
-# Reset static
-git checkout static/
 
 # Come back
 cd ..
