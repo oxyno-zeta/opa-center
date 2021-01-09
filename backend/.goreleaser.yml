@@ -65,8 +65,8 @@ dockers:
     image_templates:
       - "oxynozeta/opa-center:latest"
       - "oxynozeta/opa-center:{{ .Version }}"
-      - "oxynozeta/opa-center:{{ .Major }}"
-      - "oxynozeta/opa-center:{{ .Major }}.{{ .Minor }}"
+      # - "oxynozeta/opa-center:{{ .Major }}"
+      # - "oxynozeta/opa-center:{{ .Major }}.{{ .Minor }}"
     skip_push: false
     dockerfile: Dockerfile
     build_flag_templates:
