@@ -19,7 +19,7 @@ require (
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/golang/mock v1.4.4
 	github.com/lib/pq v1.8.0 // indirect
-	github.com/opentracing-contrib/go-gin v0.0.0-20190301172248-2e18f8b9c7d4
+	github.com/opentracing-contrib/go-gin v0.0.0-20201220185307-1dd2273433a4
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/cachecontrol v0.0.0-20200819021114-67c6ae64274f // indirect
