@@ -9,6 +9,7 @@ require (
 	github.com/HdrHistogram/hdrhistogram-go v1.0.1 // indirect
 	github.com/InVisionApp/go-health/v2 v2.1.2
 	github.com/coreos/go-oidc v2.2.1+incompatible
+	github.com/coreos/go-oidc/v3 v3.0.0
 	github.com/danielkov/gin-helmet v0.0.0-20171108135313-1387e224435e
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/gin-contrib/cors v1.3.1
@@ -35,7 +36,6 @@ require (
 	github.com/xhit/go-simple-mail/v2 v2.7.0
 	golang.org/x/oauth2 v0.0.0-20210126194326-f9ce19ea3013
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
-	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gorm.io/datatypes v1.0.0
 	gorm.io/driver/postgres v1.0.7
 	gorm.io/gorm v1.20.12
