@@ -23,9 +23,9 @@ type generalInputOPA struct {
 }
 
 type generalInputDataOPA struct {
-	User    *models.OIDCUser  `json:"user"`
-	Tags    map[string]string `json:"tags"`
-	Request *generalDataOPA   `json:"data"`
+	User *models.OIDCUser  `json:"user"`
+	Tags map[string]string `json:"tags"`
+	Data *generalDataOPA   `json:"data"`
 }
 
 type generalDataOPA struct {
@@ -55,7 +55,7 @@ func (s *service) IsAuthorized(ctx context.Context, action, resource string) (bo
 		Input: &generalInputDataOPA{
 			User: user,
 			Tags: cfg.Tags,
-			Request: &generalDataOPA{
+			Data: &generalDataOPA{
 				Action:   action,
 				Resource: resource,
 			},
@@ -83,22 +83,6 @@ func (s *service) IsAuthorized(ctx context.Context, action, resource string) (bo
 	logger.Infof("User %s authorized for action %s on resource %s", user.GetIdentifier(), action, resource)
 
 	return true, nil
-}
-
-func (s *service) CheckAuthorized(ctx context.Context, action, resource string) error {
-	// Call is authorized
-	res, err := s.IsAuthorized(ctx, action, resource)
-	// Check error
-	if err != nil {
-		return err
-	}
-
-	// Check not authorized
-	if !res {
-		return errors.NewForbiddenError("forbidden")
-	}
-
-	return nil
 }
 
 func (s *service) requestOPAServer(ctx context.Context, opaCfg *config.OPAServerAuthorization, body []byte) (bool, error) {
@@ -134,4 +118,20 @@ func (s *service) requestOPAServer(ctx context.Context, opaCfg *config.OPAServer
 	}
 
 	return answer.Result, nil
+}
+
+func (s *service) CheckAuthorized(ctx context.Context, action, resource string) error {
+	// Call is authorized
+	res, err := s.IsAuthorized(ctx, action, resource)
+	// Check error
+	if err != nil {
+		return err
+	}
+
+	// Check not authorized
+	if !res {
+		return errors.NewForbiddenError("forbidden")
+	}
+
+	return nil
 }

@@ -68,6 +68,7 @@ func parseForwarded(forwarded string) (addr, proto, host string) {
 
 func AnswerWithError(c *gin.Context, err error) {
 	// Try to cast as common error
+	// nolint: errorlint // Ignore this because the aim is to catch project error at first level
 	err2, ok := err.(errors.Error)
 	// Check if cast was a success
 	if ok {

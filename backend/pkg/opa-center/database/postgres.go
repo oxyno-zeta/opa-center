@@ -6,6 +6,7 @@ import (
 
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/config"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/log"
+	"github.com/oxyno-zeta/opa-center/pkg/opa-center/metrics"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
@@ -13,9 +14,11 @@ import (
 )
 
 type postresdb struct {
-	logger     log.Logger
-	db         *gorm.DB
-	cfgManager config.Manager
+	logger         log.Logger
+	db             *gorm.DB
+	cfgManager     config.Manager
+	connectionName string
+	metricsCl      metrics.Client
 }
 
 func (ctx *postresdb) GetSQLDB() (*sql.DB, error) {
@@ -62,6 +65,15 @@ func (ctx *postresdb) Connect() error {
 	ctx.logger.Debug("Trying to connect to database engine of type PostgreSQL")
 	// Connect to database
 	dbResult, err := gorm.Open(postgres.Open(cfg.Database.ConnectionURL.Value), gcfg)
+	// Check if error exists
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	// Get prometheus gorm middleware
+	md := ctx.metricsCl.DatabaseMiddleware(ctx.connectionName)
+	// Apply middleware
+	err = dbResult.Use(md)
 	// Check if error exists
 	if err != nil {
 		return errors.WithStack(err)

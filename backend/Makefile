@@ -145,32 +145,34 @@ down/metrics-services:
 	@echo "Down metrics services"
 	docker rm -f prometheus || true
 	docker rm -f grafana || true
+	docker rm -f jaeger || true
 
 .PHONY: down/dev-services
 down/dev-services:
 	@echo "Down dev services"
-	docker rm -f pgamin || true
-	docker rm -f jaeger || true
+	docker rm -f pgadmin || true
+	docker rm -f maildev || true
 
 .PHONY: setup/dev-services
-setup/dev-services:
+setup/dev-services: down/dev-services
 	@echo "Setup dev services"
-	docker run --name pgamin -p 8090:80 --link postgres:postgres -e 'PGADMIN_DEFAULT_EMAIL=user@domain.com' -e 'PGADMIN_DEFAULT_PASSWORD=SuperSecret' -d dpage/pgadmin4
-	docker run --name jaeger -d -p 6831:6831/udp -p 16686:16686 jaegertracing/all-in-one:latest
+	docker run --rm --name pgadmin -p 8090:80 --link postgres:postgres -e 'PGADMIN_DEFAULT_EMAIL=user@domain.com' -e 'PGADMIN_DEFAULT_PASSWORD=SuperSecret' -d dpage/pgadmin4
+	docker run --rm --name maildev -p 1080:1080 -p 1025:1025 -d maildev/maildev:1.1.0 --incoming-user fake --incoming-pass fakepassword
 
 .PHONY: setup/metrics-services
-setup/metrics-services:
+setup/metrics-services: down/metrics-services
 	@echo "Setup metrics services"
 	docker run --rm -d --name prometheus -v $(CURDIR)/.local-resources/prometheus/prometheus.yml:/prometheus/prometheus.yml --network=host prom/prometheus:v2.18.0 --web.listen-address=:9191
 	docker run --rm -d --name grafana --network=host grafana/grafana:7.0.3
+	docker run --rm --name jaeger -d -p 6831:6831/udp -p 16686:16686 jaegertracing/all-in-one:latest
 
 .PHONY: setup/services
-setup/services: down/services setup/static
+setup/services: down/services
 	@echo "Setup services"
 	docker run -d --rm --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e PGDATA=/var/lib/postgresql/data/pgdata -v $(CURDIR)/.run/postgres:/var/lib/postgresql/data postgres:12
 	tar czvf .local-resources/opa/bundle.tar.gz --directory=.local-resources/opa/bundle example/
-	docker run -d --rm --name opa --network=host -v $(CURDIR)/.local-resources/opa/bundle.tar.gz:/bundle.tar.gz -v $(CURDIR)/.local-resources/opa/conf.yaml:/conf.yaml openpolicyagent/opa run --server --log-level debug --log-format text --bundle /bundle.tar.gz -c /conf.yaml
-	docker run -d --rm --name keycloak -p 8088:8080 -e KEYCLOAK_IMPORT=/tmp/realm-export.json -v $(CURDIR)/.local-resources/keycloak/realm-export.json:/tmp/realm-export.json -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin jboss/keycloak:10.0.0
+	docker run -d --rm --name opa -p 8181:8181 -v $(CURDIR)/.local-resources/opa/bundle.tar.gz:/bundle.tar.gz openpolicyagent/opa:0.25.2 run --server --log-level debug --log-format text --bundle /bundle.tar.gz
+	docker run -d --rm --name keycloak -p 8088:8080 -e KEYCLOAK_IMPORT=/tmp/realm-export.json -v $(CURDIR)/.local-resources/keycloak/realm-export.json:/tmp/realm-export.json -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin quay.io/keycloak/keycloak:11.0.3
 
 .PHONY: setup/static
 setup/static:
@@ -183,7 +185,7 @@ ifndef HAS_GOLANGCI_LINT
 ifndef HAS_CURL
 	$(error You must install curl)
 endif
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.31.0
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.33.0
 endif
 ifndef HAS_GIT
 	$(error You must install Git)

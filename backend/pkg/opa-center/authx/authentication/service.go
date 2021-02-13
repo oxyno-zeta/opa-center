@@ -25,6 +25,7 @@ import (
 
 const callbackPath = "/auth/oidc/callback"
 const loginPath = "/auth/oidc"
+const logoutPath = "/auth/oidc/logout"
 const userContextKeyName = "USER_CONTEXT_KEY"
 const redirectQueryKey = "rd"
 const stateRedirectSeparator = ":"
@@ -69,10 +70,29 @@ func (s *service) OIDCEndpoints(router gin.IRouter) error {
 	// Get configuration
 	cfg := s.cfgManager.GetConfig()
 
+	// Create provider
 	provider, err := oidc.NewProvider(ctx, cfg.OIDCAuthentication.IssuerURL)
+	// Check error
 	if err != nil {
 		return err
 	}
+
+	// Create provider endpoints claims
+	pec := &providerEndpointsClaims{}
+	// Get claims
+	err = provider.Claims(pec)
+	// Check error
+	if err != nil {
+		return err
+	}
+	// Parse logout endpoint
+	eseURL, err := url.Parse(pec.EndSessionEndpoint)
+	// Check error
+	if err != nil {
+		return err
+	}
+	// Save url
+	pec.EndSessionEndpointURL = eseURL
 
 	oidcConfig := &oidc.Config{
 		ClientID: cfg.OIDCAuthentication.ClientID,
@@ -106,6 +126,7 @@ func (s *service) OIDCEndpoints(router gin.IRouter) error {
 	// Store provider verifier in map
 	s.verifier = verifier
 
+	// Login mount point
 	router.GET(loginPath, func(c *gin.Context) {
 		// Get redirect query from query params
 		rdVal := c.Query(redirectQueryKey)
@@ -117,6 +138,32 @@ func (s *service) OIDCEndpoints(router gin.IRouter) error {
 		c.Abort()
 	})
 
+	// Logout mount point
+	router.GET(logoutPath, func(c *gin.Context) {
+		// Initialize redirect to
+		rdTo := "/"
+		// Check if logout url exists and logout redirect url exists
+		if pec.EndSessionEndpoint != "" && cfg.OIDCAuthentication.LogoutRedirectURL != "" {
+			// Parse logout url
+			lgURL := *pec.EndSessionEndpointURL
+			// Get params
+			qs := lgURL.Query()
+			// Add param
+			qs.Add("redirect_uri", cfg.OIDCAuthentication.LogoutRedirectURL)
+			// Save them
+			lgURL.RawQuery = qs.Encode()
+			// Encode
+			rdTo = lgURL.String()
+		}
+
+		// Flush auth cookie
+		flushAuthCookie(c, cfg)
+		// Redirect
+		c.Redirect(http.StatusFound, rdTo)
+		c.Abort()
+	})
+
+	// Redirect mount point
 	router.GET(mainRedirectURLObject.Path, func(c *gin.Context) {
 		// Get logger from request
 		logger := log.GetLoggerFromGin(c)
@@ -260,14 +307,7 @@ func (s *service) Middleware(unauthorizedPathRegexList []*regexp.Regexp) gin.Han
 		if err != nil {
 			logger.Error(err)
 			// Flush potential cookie
-			http.SetCookie(c.Writer, &http.Cookie{
-				Expires:  time.Unix(0, 0),
-				Name:     cfg.OIDCAuthentication.CookieName,
-				Value:    "",
-				HttpOnly: true,
-				Secure:   cfg.OIDCAuthentication.CookieSecure,
-				Path:     "/",
-			})
+			flushAuthCookie(c, cfg)
 
 			redirectOrUnauthorized(c, unauthorizedPathRegexList)
 
@@ -279,14 +319,7 @@ func (s *service) Middleware(unauthorizedPathRegexList []*regexp.Regexp) gin.Han
 		if err != nil {
 			logger.Error(err)
 			// Flush potential cookie
-			http.SetCookie(c.Writer, &http.Cookie{
-				Expires:  time.Unix(0, 0),
-				Name:     cfg.OIDCAuthentication.CookieName,
-				Value:    "",
-				HttpOnly: true,
-				Secure:   cfg.OIDCAuthentication.CookieSecure,
-				Path:     "/",
-			})
+			flushAuthCookie(c, cfg)
 
 			redirectOrUnauthorized(c, unauthorizedPathRegexList)
 
@@ -301,6 +334,17 @@ func (s *service) Middleware(unauthorizedPathRegexList []*regexp.Regexp) gin.Han
 		logger.Infof("OIDC User authenticated: %s", ouser.GetIdentifier())
 		c.Next()
 	}
+}
+
+func flushAuthCookie(c *gin.Context, cfg *config.Config) {
+	http.SetCookie(c.Writer, &http.Cookie{
+		Expires:  time.Unix(0, 0),
+		Name:     cfg.OIDCAuthentication.CookieName,
+		Value:    "",
+		HttpOnly: true,
+		Secure:   cfg.OIDCAuthentication.CookieSecure,
+		Path:     "/",
+	})
 }
 
 func redirectOrUnauthorized(c *gin.Context, unauthorizedPathRegexList []*regexp.Regexp) {

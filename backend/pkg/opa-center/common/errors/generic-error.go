@@ -14,6 +14,7 @@ func (e *GenericError) Error() string {
 
 func (e *GenericError) StackTrace() errors.StackTrace {
 	// Cast internal error as a stack tracer error
+	// nolint: errorlint // Ignore this because the aim is to catch stack trace error at first level
 	if err2, ok := e.err.(stackTracerError); ok {
 		return err2.StackTrace()
 	}

@@ -86,7 +86,7 @@ func (svr *OPAPublisherServer) generateRouter() http.Handler {
 	router.Use(gin.Recovery())
 	router.Use(helmet.Default())
 	router.Use(middlewares.RequestID(svr.logger))
-	router.Use(svr.tracingSvc.Middleware(middlewares.GetRequestIDFromContext))
+	router.Use(svr.tracingSvc.HTTPMiddleware(middlewares.GetRequestIDFromContext))
 	router.Use(log.Middleware(svr.logger, middlewares.GetRequestIDFromGin, tracing.GetSpanIDFromContext))
 	router.Use(svr.metricsCl.Instrument("opa-publisher"))
 

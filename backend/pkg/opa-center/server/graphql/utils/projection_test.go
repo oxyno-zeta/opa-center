@@ -32,6 +32,28 @@ func TestManageSimpleProjection(t *testing.T) {
 		Field1 bool `graphqlfield:"field1"`
 		Field2 bool `graphqlfield:"field2"`
 	}
+	type OutMultiple1 struct {
+		Field1 bool `graphqlfield:"field1"`
+		Field2 bool `graphqlfield:"field2,field3"`
+	}
+	type OutMultiple2 struct {
+		Field1 bool `graphqlfield:"field1"`
+		Field2 bool `graphqlfield:"-,field3"`
+	}
+	type OutMultiple3 struct {
+		Field1 bool `graphqlfield:"field1"`
+		Field2 bool `graphqlfield:"field3,-"`
+	}
+	type OutMultiple4 struct {
+		Field1 bool `graphqlfield:"field1"`
+		Field2 bool `graphqlfield:"field2,field3"`
+		Field4 bool `graphqlfield:"field4,field5"`
+	}
+	type OutMultiple5 struct {
+		Field1 bool `graphqlfield:"field2"`
+		Field2 bool `graphqlfield:"field2,field3"`
+		Field4 bool `graphqlfield:"field4,field2"`
+	}
 	type args struct {
 		fctx          *graphql.FieldContext
 		projectionOut interface{}
@@ -184,6 +206,175 @@ func TestManageSimpleProjection(t *testing.T) {
 				},
 			},
 			want: &Out6{Field1: true, Field2: false},
+		},
+		{
+			name: "multiple graphqlfield: not all set",
+			args: args{
+				projectionOut: &OutMultiple1{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field1", Alias: "field1"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple1{Field1: true, Field2: false},
+		},
+		{
+			name: "multiple graphqlfield: 1 set on multiple",
+			args: args{
+				projectionOut: &OutMultiple1{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field1", Alias: "field1"},
+							&ast.Field{Name: "field2", Alias: "field2"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple1{Field1: true, Field2: true},
+		},
+		{
+			name: "multiple graphqlfield: 2 set on multiple",
+			args: args{
+				projectionOut: &OutMultiple1{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field1", Alias: "field1"},
+							&ast.Field{Name: "field2", Alias: "field2"},
+							&ast.Field{Name: "field3", Alias: "field3"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple1{Field1: true, Field2: true},
+		},
+		{
+			name: "multiple graphqlfield: ignoring containing a dash (-)",
+			args: args{
+				projectionOut: &OutMultiple2{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field1", Alias: "field1"},
+							&ast.Field{Name: "field2", Alias: "field2"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple2{Field1: true, Field2: false},
+		},
+		{
+			name: "multiple graphqlfield: ignoring containing a dash (-) should be true",
+			args: args{
+				projectionOut: &OutMultiple2{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field1", Alias: "field1"},
+							&ast.Field{Name: "field3", Alias: "field3"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple2{Field1: true, Field2: true},
+		},
+		{
+			name: "multiple graphqlfield: ignoring containing a dash (-) [second case]",
+			args: args{
+				projectionOut: &OutMultiple3{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field1", Alias: "field1"},
+							&ast.Field{Name: "field2", Alias: "field2"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple3{Field1: true, Field2: false},
+		},
+		{
+			name: "multiple graphqlfield: ignoring containing a dash (-) should be true [second case]",
+			args: args{
+				projectionOut: &OutMultiple3{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field1", Alias: "field1"},
+							&ast.Field{Name: "field3", Alias: "field3"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple3{Field1: true, Field2: true},
+		},
+		{
+			name: "multiple graphqlfield: 2 multiple different field set",
+			args: args{
+				projectionOut: &OutMultiple4{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field1", Alias: "field1"},
+							&ast.Field{Name: "field2", Alias: "field2"},
+							&ast.Field{Name: "field3", Alias: "field3"},
+							&ast.Field{Name: "field5", Alias: "field5"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple4{Field1: true, Field2: true, Field4: true},
+		},
+		{
+			name: "multiple graphqlfield: 2 multiple different field with 1 set and 1 not set",
+			args: args{
+				projectionOut: &OutMultiple4{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field1", Alias: "field1"},
+							&ast.Field{Name: "field2", Alias: "field2"},
+							&ast.Field{Name: "field3", Alias: "field3"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple4{Field1: true, Field2: true, Field4: false},
+		},
+		{
+			name: "multiple graphqlfield: not found field ignored",
+			args: args{
+				projectionOut: &OutMultiple4{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field1", Alias: "field1"},
+							&ast.Field{Name: "field2", Alias: "field2"},
+							&ast.Field{Name: "fieldignored", Alias: "fieldignored"},
+							&ast.Field{Name: "field3", Alias: "field3"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple4{Field1: true, Field2: true, Field4: false},
+		},
+		{
+			name: "multiple field liked to 1 graphqlfield",
+			args: args{
+				projectionOut: &OutMultiple5{},
+				fctx: &graphql.FieldContext{
+					Field: graphql.CollectedField{
+						Selections: ast.SelectionSet{
+							&ast.Field{Name: "field2", Alias: "field2"},
+						},
+					},
+				},
+			},
+			want: &OutMultiple5{Field1: true, Field2: true, Field4: true},
 		},
 	}
 	for _, tt := range tests {

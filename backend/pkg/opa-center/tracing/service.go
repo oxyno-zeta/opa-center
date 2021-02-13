@@ -4,6 +4,8 @@ import (
 	"io"
 	"time"
 
+	"github.com/99designs/gqlgen-contrib/gqlopentracing"
+	gqlgraphql "github.com/99designs/gqlgen/graphql"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/config"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/log"
@@ -19,6 +21,10 @@ type service struct {
 	cfgManager     config.Manager
 	logger         log.Logger
 	metricsFactory *jaegerprom.Factory
+}
+
+func (s *service) GraphqlMiddleware() gqlgraphql.HandlerExtension {
+	return gqlopentracing.Tracer{}
 }
 
 func (s *service) GetTracer() opentracing.Tracer {

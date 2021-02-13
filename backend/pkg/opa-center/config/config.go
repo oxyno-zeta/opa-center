@@ -36,15 +36,16 @@ type Config struct {
 
 // OIDCAuthConfig OpenID Connect authentication configurations.
 type OIDCAuthConfig struct {
-	ClientID      string            `mapstructure:"clientId" validate:"required"`
-	ClientSecret  *CredentialConfig `mapstructure:"clientSecret" validate:"omitempty,dive"`
-	IssuerURL     string            `mapstructure:"issuerUrl" validate:"required,url"`
-	RedirectURL   string            `mapstructure:"redirectUrl" validate:"required,url"`
-	Scopes        []string          `mapstructure:"scopes"`
-	State         string            `mapstructure:"state" validate:"required"`
-	CookieName    string            `mapstructure:"cookieName"`
-	EmailVerified bool              `mapstructure:"emailVerified"`
-	CookieSecure  bool              `mapstructure:"cookieSecure"`
+	ClientID          string            `mapstructure:"clientId" validate:"required"`
+	ClientSecret      *CredentialConfig `mapstructure:"clientSecret" validate:"omitempty,dive"`
+	IssuerURL         string            `mapstructure:"issuerUrl" validate:"required,url"`
+	RedirectURL       string            `mapstructure:"redirectUrl" validate:"required,url"`
+	LogoutRedirectURL string            `mapstructure:"logoutRedirectUrl" validate:"omitempty,url"`
+	Scopes            []string          `mapstructure:"scopes"`
+	State             string            `mapstructure:"state" validate:"required"`
+	CookieName        string            `mapstructure:"cookieName"`
+	EmailVerified     bool              `mapstructure:"emailVerified"`
+	CookieSecure      bool              `mapstructure:"cookieSecure"`
 }
 
 // OPAServerAuthorization OPA Server authorization.

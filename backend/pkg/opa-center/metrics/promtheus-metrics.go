@@ -8,20 +8,49 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"gorm.io/gorm"
 
 	gqlprometheus "github.com/99designs/gqlgen-contrib/prometheus"
+	gqlgraphql "github.com/99designs/gqlgen/graphql"
+	gormprometheus "gorm.io/plugin/prometheus"
 )
 
 type prometheusMetrics struct {
-	reqCnt *prometheus.CounterVec
-	resSz  *prometheus.SummaryVec
-	reqDur *prometheus.SummaryVec
-	reqSz  *prometheus.SummaryVec
-	up     prometheus.Gauge
+	reqCnt         *prometheus.CounterVec
+	resSz          *prometheus.SummaryVec
+	reqDur         *prometheus.SummaryVec
+	reqSz          *prometheus.SummaryVec
+	up             prometheus.Gauge
+	gormPrometheus map[string]gorm.Plugin
 }
 
-func (ctx *prometheusMetrics) GetPrometheusHTTPHandler() http.Handler {
+func (ctx *prometheusMetrics) GraphqlMiddleware() gqlgraphql.HandlerExtension {
+	return gqlprometheus.Tracer{}
+}
+
+func (ctx *prometheusMetrics) PrometheusHTTPHandler() http.Handler {
 	return promhttp.Handler()
+}
+
+// The gorm prometheus plugin cannot be instantiated twice because there is a loop inside that cannot be modified or stopped.
+// This loop get all data from database and the loop cannot be modified in terms of the duration.
+// Labels and all other options cannot be modified.
+func (ctx *prometheusMetrics) DatabaseMiddleware(connectionName string) gorm.Plugin {
+	// Check if gorm prometheus doesn't already exist
+	if ctx.gormPrometheus[connectionName] == nil {
+		// Create middleware
+		md := gormprometheus.New(gormprometheus.Config{
+			RefreshInterval: defaultPrometheusGormRefreshMetricsSecond, // refresh metrics interval (default 15 seconds)
+		})
+		// Apply labels
+		md.Labels = map[string]string{
+			"connection_name": connectionName,
+		}
+		// Save it
+		ctx.gormPrometheus[connectionName] = md
+	}
+
+	return ctx.gormPrometheus[connectionName]
 }
 
 // Instrument will instrument gin routes.

@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"net/url"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
@@ -13,6 +14,11 @@ type Client interface {
 	Middleware(unauthorizedPathRegexList []*regexp.Regexp) gin.HandlerFunc
 	// OIDCEndpoints will set OpenID Connect endpoints for authentication and callback.
 	OIDCEndpoints(router gin.IRouter) error
+}
+
+type providerEndpointsClaims struct {
+	EndSessionEndpoint    string `json:"end_session_endpoint"`
+	EndSessionEndpointURL *url.URL
 }
 
 func NewService(cfgManager config.Manager) Client {

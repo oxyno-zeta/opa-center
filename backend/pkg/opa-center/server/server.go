@@ -7,8 +7,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/99designs/gqlgen-contrib/gqlopentracing"
-	gqlprometheus "github.com/99designs/gqlgen-contrib/prometheus"
 	gqlgraphql "github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/apollotracing"
@@ -107,7 +105,7 @@ func (svr *Server) generateRouter() (http.Handler, error) {
 	router.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithDecompressFn(gzip.DefaultDecompressHandle)))
 	router.Use(gin.Recovery())
 	router.Use(middlewares.RequestID(svr.logger))
-	router.Use(svr.tracingSvc.Middleware(middlewares.GetRequestIDFromContext))
+	router.Use(svr.tracingSvc.HTTPMiddleware(middlewares.GetRequestIDFromContext))
 	router.Use(log.Middleware(svr.logger, middlewares.GetRequestIDFromGin, tracing.GetSpanIDFromContext))
 	router.Use(svr.metricsCl.Instrument("business"))
 	// Add helmet for security
@@ -140,7 +138,7 @@ func (svr *Server) generateRouter() (http.Handler, error) {
 	}
 
 	// Add graphql endpoints
-	router.POST("/api/graphql", graphqlHandler(svr.busiServices))
+	router.POST("/api/graphql", svr.graphqlHandler(svr.busiServices))
 	router.GET("/api/graphql", playgroundHandler())
 
 	// Add gin html files for answer
@@ -168,7 +166,7 @@ func (svr *Server) Listen() error {
 }
 
 // Defining the Graphql handler.
-func graphqlHandler(busiServices *business.Services) gin.HandlerFunc {
+func (svr *Server) graphqlHandler(busiServices *business.Services) gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
 	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
@@ -196,8 +194,8 @@ func graphqlHandler(busiServices *business.Services) gin.HandlerFunc {
 		return gqlgraphql.DefaultErrorPresenter(ctx, err)
 	})
 	h.Use(apollotracing.Tracer{})
-	h.Use(gqlopentracing.Tracer{})
-	h.Use(gqlprometheus.Tracer{})
+	h.Use(svr.tracingSvc.GraphqlMiddleware())
+	h.Use(svr.metricsCl.GraphqlMiddleware())
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)

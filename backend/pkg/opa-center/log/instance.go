@@ -125,11 +125,13 @@ func (ll *loggerIns) WithError(err error) Logger {
 	}
 
 	// Check if error is matching stack trace interface
+	// nolint: errorlint // Ignore this because the aim is to catch stack trace error at first level
 	if err2, ok := err.(stackTracer); ok {
 		addStackTrace(err2)
 	}
 
 	// Check if error cause is matching stack trace interface
+	// nolint: errorlint // Ignore this because the aim is to catch stack trace error at first level
 	if err2, ok := errors.Cause(err).(stackTracer); ok {
 		addStackTrace(err2)
 	}

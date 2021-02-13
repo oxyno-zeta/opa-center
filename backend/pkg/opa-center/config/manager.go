@@ -2,7 +2,7 @@ package config
 
 import "github.com/oxyno-zeta/opa-center/pkg/opa-center/log"
 
-// Manager
+// Manager.
 //go:generate mockgen -destination=./mocks/mock_Manager.go -package=mocks github.com/oxyno-zeta/opa-center/pkg/opa-center/config Manager
 type Manager interface {
 	// Load configuration

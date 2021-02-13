@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/common/errors"
@@ -144,27 +145,60 @@ func manageGraphqlProjection(
 			continue
 		}
 
-		// Check if field is asked in graphql
-		gfieldInt := funk.Find(gfields, func(gfield graphql.CollectedField) bool {
-			return gfield.Name == tagValue
-		})
-		// Check if field isn't found
-		if gfieldInt == nil {
-			// Field isn't found => continue to next field
-			continue
-		}
+		// Split tag value for multiple fields
+		tagValues := strings.Split(tagValue, ",")
 
-		// Check if field is a boolean
-		if fieldType.Type.Kind() == reflect.Bool {
-			pOutVal.Field(i).SetBool(true)
-			// Stop here
-			continue
-		}
+		// Loop over tag values
+		for _, value := range tagValues {
+			// Check if tag isn't marked as ignored
+			if value == "-" {
+				// Continue to next field
+				continue
+			}
 
-		// Field is found but type isn't supported
-		return errors.NewInvalidInputError(fmt.Sprintf("field %s must be a boolean", fieldType.Name))
+			// Manage field projection
+			err := manageFieldProjection(
+				gfields,
+				value,
+				&pOutVal,
+				i,
+				&fieldType,
+			)
+			// Check error
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	// Default
 	return nil
+}
+
+func manageFieldProjection(
+	gfields []graphql.CollectedField,
+	tagValue string,
+	pOutVal *reflect.Value,
+	fieldNumber int,
+	fieldType *reflect.StructField,
+) error {
+	// Check if field is asked in graphql
+	gfieldInt := funk.Find(gfields, func(gfield graphql.CollectedField) bool {
+		return gfield.Name == tagValue
+	})
+	// Check if field isn't found
+	if gfieldInt == nil {
+		// Field isn't found => continue to next field
+		return nil
+	}
+
+	// Check if field is a boolean
+	if fieldType.Type.Kind() == reflect.Bool {
+		pOutVal.Field(fieldNumber).SetBool(true)
+		// Stop here
+		return nil
+	}
+
+	// Field is found but type isn't supported
+	return errors.NewInvalidInputError(fmt.Sprintf("field %s must be a boolean", fieldType.Name))
 }

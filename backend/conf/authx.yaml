@@ -6,6 +6,7 @@ oidcAuthentication:
   redirectUrl: http://localhost:8080/ # /auth/oidc/callback will be added
   # UI development
   # redirectUrl: http://localhost:3000/ # /auth/oidc/callback will be added
+  logoutRedirectUrl: http://localhost:8080/
   emailVerified: true
 
 opaServerAuthorization:

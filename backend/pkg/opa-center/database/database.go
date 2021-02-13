@@ -5,6 +5,7 @@ import (
 
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/config"
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/log"
+	"github.com/oxyno-zeta/opa-center/pkg/opa-center/metrics"
 	"gorm.io/gorm"
 )
 
@@ -25,6 +26,16 @@ type DB interface {
 }
 
 // NewDatabase will generate a new DB object.
-func NewDatabase(cfgManager config.Manager, logger log.Logger) DB {
-	return &postresdb{logger: logger, cfgManager: cfgManager}
+func NewDatabase(
+	connectionName string,
+	cfgManager config.Manager,
+	logger log.Logger,
+	metricsCl metrics.Client,
+) DB {
+	return &postresdb{
+		logger:         logger,
+		cfgManager:     cfgManager,
+		metricsCl:      metricsCl,
+		connectionName: connectionName,
+	}
 }

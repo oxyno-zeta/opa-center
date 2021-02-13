@@ -10,7 +10,7 @@ import (
 	"github.com/oxyno-zeta/opa-center/pkg/opa-center/version"
 )
 
-func (s *service) Middleware(getRequestID func(ctx context.Context) string) gin.HandlerFunc {
+func (s *service) HTTPMiddleware(getRequestID func(ctx context.Context) string) gin.HandlerFunc {
 	// Get version
 	v := version.GetVersion()
 	// Add more metadata to span

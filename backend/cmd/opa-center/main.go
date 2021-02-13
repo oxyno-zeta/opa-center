@@ -70,7 +70,7 @@ func main() {
 	})
 
 	// Create database service
-	db := database.NewDatabase(cfgManager, logger)
+	db := database.NewDatabase("main", cfgManager, logger, metricsCl)
 	// Connect to engine
 	err = db.Connect()
 	if err != nil {
@@ -121,6 +121,13 @@ func main() {
 	opaSvr := server.NewOPAPublisherServer(logger, cfgManager, metricsCl, tracingSvc, busServices, authenticationSvc)
 	intSvr := server.NewInternalServer(logger, cfgManager, metricsCl)
 
+	// Add checker for database
+	intSvr.AddChecker(&server.CheckerInput{
+		Name:     "database",
+		CheckFn:  db.Ping,
+		Interval: 2 * time.Second, //nolint:gomnd // Won't do a const for that
+	})
+
 	// Generate server
 	err = svr.GenerateServer()
 	if err != nil {
@@ -136,13 +143,6 @@ func main() {
 	if err != nil {
 		logger.WithError(err).Fatal(err)
 	}
-
-	// Add checker for internal server
-	intSvr.AddChecker(&server.CheckerInput{
-		Name:     "database",
-		CheckFn:  db.Ping,
-		Interval: 2 * time.Second, //nolint:gomnd // Won't do a const for that
-	})
 
 	var g errgroup.Group
 

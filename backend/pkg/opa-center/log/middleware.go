@@ -100,11 +100,11 @@ func Middleware(logger Logger, getRequestID func(c *gin.Context) string, getSpan
 
 		logFunc := endRequestLogger.Infoln
 
-		if status >= http.StatusMultipleChoices && status < http.StatusBadGateway {
+		if status >= http.StatusMultipleChoices && status < http.StatusInternalServerError {
 			logFunc = endRequestLogger.Warnln
 		}
 
-		if status >= http.StatusBadGateway {
+		if status >= http.StatusInternalServerError {
 			logFunc = endRequestLogger.Errorln
 		}
 

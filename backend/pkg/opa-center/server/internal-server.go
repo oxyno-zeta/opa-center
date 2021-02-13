@@ -89,7 +89,7 @@ func (svr *InternalServer) generateInternalRouter() (http.Handler, error) {
 	}
 
 	// Add metrics path
-	router.GET("/metrics", gin.WrapH(svr.metricsCl.GetPrometheusHTTPHandler()))
+	router.GET("/metrics", gin.WrapH(svr.metricsCl.PrometheusHTTPHandler()))
 	router.GET("/health", gin.WrapH(handlers.NewJSONHandlerFunc(h, nil)))
 
 	return router, nil
