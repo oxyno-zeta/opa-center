@@ -17,7 +17,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/gofrs/uuid v4.0.0+incompatible
-	github.com/golang/mock v1.4.4
+	github.com/golang/mock v1.5.0
 	github.com/lib/pq v1.8.0 // indirect
 	github.com/opentracing-contrib/go-gin v0.0.0-20201220185307-1dd2273433a4
 	github.com/opentracing/opentracing-go v1.2.0
