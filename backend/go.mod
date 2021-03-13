@@ -33,7 +33,7 @@ require (
 	github.com/uber/jaeger-lib v2.4.0+incompatible
 	github.com/vektah/gqlparser/v2 v2.1.0
 	github.com/xhit/go-simple-mail/v2 v2.7.0
-	golang.org/x/oauth2 v0.0.0-20210126194326-f9ce19ea3013
+	golang.org/x/oauth2 v0.0.0-20210313182246-cd4f82c27b84
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gorm.io/datatypes v1.0.0
