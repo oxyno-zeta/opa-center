@@ -82,7 +82,7 @@ jobs:
             - "/home/circleci/go/pkg"
   lint-ui:
     docker:
-      - image: cimg/node:15.4.0
+      - image: cimg/node:15.14.0
     steps:
       - checkout
       - run: |
@@ -95,7 +95,7 @@ jobs:
             - "./node_modules/"
   build-ui:
     docker:
-      - image: cimg/node:15.4.0
+      - image: cimg/node:15.14.0
     steps:
       - checkout
       - restore_cache:
