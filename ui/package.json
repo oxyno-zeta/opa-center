@@ -9,7 +9,7 @@
     "@material-ui/styles": "4.10.0",
     "@monaco-editor/react": "3.8.3",
     "@testing-library/jest-dom": "5.11.6",
-    "@testing-library/react": "11.2.2",
+    "@testing-library/react": "11.2.7",
     "@testing-library/user-event": "12.7.1",
     "classnames": "2.2.6",
     "dayjs": "1.10.4",
