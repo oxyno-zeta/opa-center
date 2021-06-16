@@ -17,7 +17,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/gofrs/uuid v4.0.0+incompatible
-	github.com/golang/mock v1.4.4
+	github.com/golang/mock v1.6.0
 	github.com/lib/pq v1.8.0 // indirect
 	github.com/opentracing-contrib/go-gin v0.0.0-20201220185307-1dd2273433a4
 	github.com/opentracing/opentracing-go v1.2.0
@@ -34,7 +34,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.1.0
 	github.com/xhit/go-simple-mail/v2 v2.7.0
 	golang.org/x/oauth2 v0.0.0-20210126194326-f9ce19ea3013
-	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gorm.io/datatypes v1.0.0
 	gorm.io/driver/postgres v1.0.7
