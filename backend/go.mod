@@ -30,7 +30,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/thoas/go-funk v0.7.0
 	github.com/uber/jaeger-client-go v2.25.0+incompatible
-	github.com/uber/jaeger-lib v2.4.0+incompatible
+	github.com/uber/jaeger-lib v2.4.1+incompatible
 	github.com/vektah/gqlparser/v2 v2.1.0
 	github.com/xhit/go-simple-mail/v2 v2.7.0
 	golang.org/x/oauth2 v0.0.0-20210126194326-f9ce19ea3013
