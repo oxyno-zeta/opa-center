@@ -39,5 +39,5 @@ require (
 	gorm.io/datatypes v1.0.0
 	gorm.io/driver/postgres v1.0.7
 	gorm.io/gorm v1.20.12
-	gorm.io/plugin/prometheus v0.0.0-20210112035011-ae3013937adc
+	gorm.io/plugin/prometheus 436184e80556
 )
