@@ -14,7 +14,7 @@
     "classnames": "2.2.6",
     "dayjs": "1.10.4",
     "graphql": "15.4.0",
-    "http-proxy-middleware": "1.0.6",
+    "http-proxy-middleware": "2.0.7",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-hook-form": "6.15.1",
